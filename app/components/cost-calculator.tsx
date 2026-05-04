@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -128,7 +128,7 @@ export function CostCalculator() {
     setRanges((current) => ({ ...current, [key]: value }));
   }
 
-  async function handleContactSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleContactSubmit(event: { preventDefault(): void; currentTarget: HTMLFormElement }) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") || "").trim();
@@ -448,25 +448,25 @@ function ReviewsShowcase({ onEstimateClick }: { onEstimateClick: () => void }) {
       name: "Angelique Rita",
       text: "Kesh and the team were sensational. Patient, professional, and transformed our home from difficult condition to a clean modern finish.",
       image:
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1800&q=92",
+        "/projects/project-51.jpg",
     },
     {
       name: "Victoria Davy",
       text: "Avine were excellent. Large lounge with high ceilings and tricky beams was handled on time with great communication throughout.",
       image:
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1800&q=92",
+        "/projects/project-52.jpg",
     },
     {
       name: "Jamie Sweeney",
       text: "Exterior weatherboards came out fantastic and the prep work made a huge difference. Professional crew from start to finish.",
       image:
-        "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1800&q=92",
+        "/projects/project-53.jpg",
     },
     {
       name: "Anne Morrison",
       text: "Recent repaint job was neat, organised and looked outstanding. We would happily use Norm Painting again for future work.",
       image:
-        "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1800&q=92",
+        "/projects/project-54.jpg",
     },
   ];
 
@@ -572,9 +572,9 @@ function ReviewsShowcase({ onEstimateClick }: { onEstimateClick: () => void }) {
 
 function GalleryTeaser({ onEstimateClick }: { onEstimateClick: () => void }) {
   const galleryImages = [
-    "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=1600&q=90",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=90",
-    "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1600&q=90",
+    "/projects/project-55.jpg",
+    "/projects/project-58.jpg",
+    "/projects/project-59.jpg",
   ];
 
   return (

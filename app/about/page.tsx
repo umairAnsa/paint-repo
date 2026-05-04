@@ -1,382 +1,363 @@
-﻿import type { Metadata } from "next";
-import Link from "next/link";
-import { Header, Footer } from "../components/landing-page-sections";
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: "About Us | Norm Painting",
+  title: 'About Us',
   description:
-    "Learn about Norm Painting, our painting expertise, and why homeowners in Geelong and Melbourne trust our team.",
+    'Learn about Norm Painting — our story, values, and why homeowners and businesses across Geelong and Melbourne trust our team.',
 };
 
-const servicePoints = [
+const VALUES = [
   {
-    title: "Quality & Excellence",
-    text: "Premium materials and clean finish standards on every project.",
+    title: 'Quality First',
+    text: 'We never cut corners. Every surface is properly prepared, primed, and finished with premium-grade Dulux and Taubmans products.',
+    icon: (
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 0 0 1.946-.806 3.42 3.42 0 0 1 4.438 0 3.42 3.42 0 0 0 1.946.806 3.42 3.42 0 0 1 3.138 3.138 3.42 3.42 0 0 0 .806 1.946 3.42 3.42 0 0 1 0 4.438 3.42 3.42 0 0 0-.806 1.946 3.42 3.42 0 0 1-3.138 3.138 3.42 3.42 0 0 0-1.946.806 3.42 3.42 0 0 1-4.438 0 3.42 3.42 0 0 0-1.946-.806 3.42 3.42 0 0 1-3.138-3.138 3.42 3.42 0 0 0-.806-1.946 3.42 3.42 0 0 1 0-4.438 3.42 3.42 0 0 0 .806-1.946 3.42 3.42 0 0 1 3.138-3.138z" />
+      </svg>
+    ),
   },
   {
-    title: "Trust & Transparency",
-    text: "Clear communication, itemized pricing, and practical advice.",
+    title: 'Honest Communication',
+    text: 'No jargon, no surprises. We explain everything clearly — from the quote stage through to final handover — and always do what we say.',
+    icon: (
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      </svg>
+    ),
   },
   {
-    title: "Reliability & Professionalism",
-    text: "On-time teams, tidy workflow, and respectful site care.",
+    title: 'Reliability',
+    text: 'We show up on time, work cleanly, and complete projects on schedule. Your home and your time are respected throughout the entire job.',
+    icon: (
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Lasting Results',
+    text: 'We back every project with a 7-year workmanship warranty because we stand behind the quality of every brushstroke we apply.',
+    icon: (
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Transparent Pricing',
+    text: 'Detailed written quotes with itemised costs. No hidden extras, no vague estimates — just clear, fair pricing from the start.',
+    icon: (
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <line x1="12" x2="12" y1="1" y2="23" />
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Local Expertise',
+    text: 'As a Geelong-based business, we understand local conditions, climate, and architectural styles — ensuring finishes that perform and look great year-round.',
+    icon: (
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    ),
   },
 ];
 
-const areas = [
-  "Geelong",
-  "Melbourne",
-  "Braybrook",
-  "Kingsville",
-  "Williamstown",
-  "West Footscray",
-  "Seddon",
-  "Yarraville",
-  "Docklands",
-  "Newport",
-  "Rippleside",
-  "South Geelong",
-  "Queenscliff",
-  "Lara",
-  "Corio",
-  "Bell Post Hill",
-  "Geelong West",
-  "Newtown",
-  "Armstrong Creek",
-  "Grovedale",
-  "North Geelong",
-  "Norlane",
-  "Ocean Grove",
-  "Highton",
-  "Torquay",
-  "Belmont",
-  "Manifold Heights",
-  "Drysdale",
+const MILESTONES = [
+  { year: '2014', title: 'Founded in Geelong', text: 'Norm Painting launched with a commitment to quality residential painting in the Geelong region.' },
+  { year: '2017', title: 'Expanded to Melbourne', text: 'Growing demand led us to extend our services to Melbourne\'s inner west suburbs.' },
+  { year: '2019', title: 'Commercial Division', text: 'We launched a dedicated commercial painting team serving offices, retail and industrial clients.' },
+  { year: '2021', title: '500 Projects Milestone', text: 'We completed our 500th project — a full exterior repaint in Highton, Geelong.' },
+  { year: '2024', title: 'Award Recognition', text: 'Recognised as one of Geelong\'s top-rated painting contractors on Google with 120+ five-star reviews.' },
+];
+
+const STATS = [
+  { value: '500+', label: 'Projects Delivered' },
+  { value: '10+', label: 'Years in Business' },
+  { value: '7yr', label: 'Workmanship Warranty' },
+  { value: '120+', label: 'Five-Star Reviews' },
 ];
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#111827]">
-      <Header />
-
-      <main>
-        {/* Hero */}
-        <section className="relative overflow-hidden bg-linear-to-br from-[#0f172a] via-[#1e3a8a] to-[#1d4ed8] px-5 py-20 text-white sm:px-8 sm:py-28">
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
-            }}
-          />
-          <div className="relative mx-auto max-w-4xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-300">
-              About Norm Painting
-            </span>
-            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-6xl">
-              Trusted House Painters in
-              <br />
-              <span className="text-[#F97316]">Geelong &amp; Melbourne</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/75">
-              Interior, exterior and full repaint projects delivered with
-              premium paints, tidy workmanship, and practical guidance from one
-              local team.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                href="/estimate"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#F97316] px-8 text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition hover:bg-[#EA6C07] hover:-translate-y-0.5"
-              >
-                Get Free Quote
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border-2 border-white/30 px-8 text-sm font-bold text-white transition hover:border-white/60 hover:bg-white/10"
-              >
-                Contact Us
-              </Link>
-            </div>
+    <main>
+      {/* Page Hero */}
+      <section className="relative overflow-hidden bg-[#0c1f3d] px-5 pb-20 pt-36 sm:px-8 sm:pt-44 sm:pb-28">
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[#f97316]/8 blur-3xl" />
+        <div className="relative mx-auto max-w-4xl text-center">
+          <span className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />
+            About Norm Painting
+          </span>
+          <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight text-white sm:text-6xl">
+            Built on Workmanship,
+            <br />
+            <span className="text-[#f97316]">Driven by Integrity</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
+            Norm Painting is a locally owned painting company serving Geelong and Melbourne since 2014. We believe every project deserves genuine care, thorough preparation, and a finish that lasts.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/estimate"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-xl shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
+            >
+              Get Free Quote
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/25 px-8 text-sm font-bold text-white transition hover:border-white/50 hover:bg-white/8"
+            >
+              Contact Us
+            </Link>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Trust Stats */}
-        <section className="bg-white px-5 py-12 sm:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid divide-y divide-gray-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              {[
-                { value: "10+", label: "Years of Painting Experience" },
-                { value: "7yr", label: "Workmanship Warranty" },
-                { value: "100%", label: "Fully Insured" },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="flex items-center gap-5 py-8 sm:px-8"
-                >
-                  <p className="text-5xl font-black text-[#1E3A8A]">
-                    {stat.value}
-                  </p>
-                  <p className="text-sm leading-snug text-gray-500">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* About Content */}
-        <section className="px-5 py-16 sm:px-8">
-          <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#1E3A8A]">
-                — About Us
-              </p>
-              <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-[#111827] sm:text-5xl">
-                Bringing Homes to Life with Expert Painting Services
-              </h2>
-              <p className="mt-5 text-base leading-7 text-gray-600">
-                We are a local painting company focused on finish quality,
-                preparation, and a stress-free experience. From first
-                walkthrough to final handover, we keep every step clear and
-                dependable.
-              </p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                {[
-                  "Premium Dulux & Taubmans paints",
-                  "Full surface preparation",
-                  "Free colour consultation",
-                  "Punctual & tidy crew",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-2.5 text-sm font-semibold text-gray-700"
-                  >
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1E3A8A]/10 text-[#1E3A8A]">
-                      <svg
-                        fill="none"
-                        height="10"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        viewBox="0 0 24 24"
-                        width="10"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </span>
-                    {item}
-                  </div>
-                ))}
+      {/* Stats Strip */}
+      <section className="bg-white px-5 py-10 sm:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-gray-100 bg-gray-100 lg:grid-cols-4">
+            {STATS.map((stat, i) => (
+              <div
+                key={stat.label}
+                className={`flex flex-col items-center bg-white px-6 py-8 text-center ${i < STATS.length - 1 ? '' : ''}`}
+              >
+                <p className="text-4xl font-black text-[#1e3a8a]">{stat.value}</p>
+                <p className="mt-1.5 text-sm font-semibold text-gray-500">{stat.label}</p>
               </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-[1fr_1.1fr]">
-              <article className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#1E3A8A]">
-                  Vision
-                </p>
-                <h3 className="mt-3 text-xl font-black text-[#111827]">
-                  2028 Vision for Norm Painting
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-gray-500">
-                  Build a trusted, high-standard painting brand that clients
-                  confidently recommend across local suburbs.
-                </p>
-              </article>
-              <img
-                src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=85"
-                alt="House exterior painting"
-                className="h-64 w-full rounded-2xl object-cover shadow-sm"
-              />
-            </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Foundation Cards */}
-        <section className="bg-white px-5 py-16 sm:px-8">
-          <div className="mx-auto max-w-7xl">
-            <h2 className="text-center text-3xl font-black tracking-tight text-[#111827] sm:text-4xl">
-              The Foundation of Our Painting Services
+      {/* Our Story */}
+      <section className="px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2">
+          {/* Text */}
+          <div>
+            <span className="section-kicker">Our Story</span>
+            <h2 className="mt-4 text-4xl font-black leading-tight tracking-tight text-[#111827] sm:text-5xl">
+              A Decade of Painting Excellence
             </h2>
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
-              {servicePoints.map((point) => (
-                <article
-                  className="group rounded-2xl border border-gray-100 bg-[#F8FAFC] p-6 shadow-sm transition hover:-translate-y-1 hover:border-[#1E3A8A]/20 hover:shadow-md"
-                  key={point.title}
-                >
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#1E3A8A]/10 text-[#1E3A8A]">
-                    <svg
-                      fill="none"
-                      height="16"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      width="16"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
+            <p className="mt-5 text-base leading-7 text-gray-500">
+              Norm Painting started in 2014 with a simple belief: that every client deserves the same meticulous care, whether it&apos;s a single feature wall or a full commercial fit-out. We built our reputation one project at a time by showing up, doing the work properly, and treating every home like our own.
+            </p>
+            <p className="mt-4 text-base leading-7 text-gray-500">
+              Today, our experienced team operates across Geelong, Melbourne, and surrounding regions — bringing the same dedication and premium-quality finishes that have earned us 120+ five-star reviews and thousands of satisfied clients.
+            </p>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {[
+                'Premium Dulux & Taubmans paints',
+                'Full surface preparation every time',
+                'Free colour consultation included',
+                'Tidy, professional crew on every job',
+                'Licensed and fully insured',
+                '7-year workmanship warranty',
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-2.5 text-sm font-semibold text-gray-700">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1e3a8a]/10 text-[#1e3a8a]">
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </span>
-                  <h3 className="mt-4 text-lg font-black text-[#111827]">
-                    {point.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-gray-500">
-                    {point.text}
-                  </p>
-                </article>
-              ))}
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-gray-200 bg-white px-5 py-3.5 text-sm font-semibold text-gray-700 shadow-sm">
-                Licence Number: 35000709070
-              </div>
-              <div className="rounded-xl border border-gray-200 bg-white px-5 py-3.5 text-sm font-semibold text-gray-700 shadow-sm">
-                ABN: 52704401415
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Why Choose Us */}
-        <section className="bg-linear-to-br from-[#1E3A8A] to-[#1d4ed8] px-5 py-16 text-white sm:px-8">
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-orange-300">
-                Why Choose Us
-              </p>
-              <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-                Why Choose Norm Painting?
-              </h2>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                "10+ years combined painting experience in homes of all sizes.",
-                "7-year workmanship warranty and clear preparation standards.",
-                "Premium products, tidy process, and predictable scheduling.",
-                "Friendly communication from quote stage to project completion.",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-start gap-3 rounded-xl bg-white/10 p-4 text-sm leading-6"
-                >
-                  <svg
-                    className="mt-0.5 h-4 w-4 shrink-0 text-orange-300"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
                   {item}
                 </div>
               ))}
             </div>
-          </div>
-        </section>
 
-        {/* Testimonials */}
-        <section className="px-5 py-16 sm:px-8">
-          <div className="mx-auto max-w-7xl">
-            <h2 className="text-center text-3xl font-black tracking-tight text-[#111827] sm:text-4xl">
-              What Our Clients Say
-            </h2>
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
-              {testimonials.map((item) => (
-                <article
-                  key={item.name}
-                  className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="h-44 w-full object-cover"
-                  />
-                  <div className="p-5">
-                    <p className="text-base text-[#F97316]">★★★★★</p>
-                    <p className="mt-2 text-sm leading-6 text-gray-600">
-                      &ldquo;{item.text}&rdquo;
-                    </p>
-                    <p className="mt-3 text-sm font-black text-[#111827]">
-                      {item.name}
-                    </p>
-                  </div>
-                </article>
-              ))}
+            <div className="mt-6 flex flex-wrap gap-3 rounded-xl border border-gray-100 bg-[#f8fafc] p-4 text-sm text-gray-600">
+              <span className="font-bold text-[#111827]">Licence:</span> 35000709070
+              <span className="text-gray-300">|</span>
+              <span className="font-bold text-[#111827]">ABN:</span> 52 704 401 415
             </div>
           </div>
-        </section>
 
-        {/* Areas */}
-        <section className="bg-white px-5 py-16 sm:px-8">
-          <div className="mx-auto max-w-7xl text-center">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#1E3A8A]">
-              Areas We Serve
-            </p>
-            <h2 className="mt-4 text-4xl font-black tracking-tight text-[#111827] sm:text-5xl">
-              Where We Operate
+          {/* Images */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative overflow-hidden rounded-2xl">
+              <Image
+                src="/projects/project-49.jpg"
+                alt="Beautifully painted home exterior"
+                width={400}
+                height={500}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="overflow-hidden rounded-2xl bg-[#0c1f3d] p-6 text-white">
+                <p className="text-3xl font-black text-[#f97316]">500+</p>
+                <p className="mt-1 text-sm font-semibold text-white/80">Projects completed across VIC</p>
+              </div>
+              <div className="relative flex-1 overflow-hidden rounded-2xl">
+                <Image
+                  src="/projects/project-50.jpg"
+                  alt="Professional painter at work"
+                  width={400}
+                  height={320}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Values */}
+      <section className="bg-[#f8fafc] px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center">
+            <span className="section-kicker mx-auto">Our Values</span>
+            <h2 className="mt-4 text-4xl font-black leading-tight tracking-tight text-[#111827] sm:text-5xl">
+              The Principles Behind Every Project
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-600">
-              We provide residential{" "}
-              <span className="font-bold text-[#F97316]">
-                painting services
-              </span>{" "}
-              across Geelong, Melbourne and surrounding suburbs within a 45km
-              radius.
+            <p className="mx-auto mt-4 max-w-xl text-base text-gray-500">
+              Everything we do is guided by six core values that ensure you receive a premium experience from first call to final coat.
             </p>
-            <div className="mx-auto mt-8 flex max-w-4xl flex-wrap justify-center gap-2.5">
-              {areas.map((area) => (
-                <span
-                  key={area}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-gray-200 bg-[#F8FAFC] px-5 text-sm font-semibold text-gray-700 transition hover:border-[#F97316]/40 hover:text-[#F97316]"
-                >
-                  {area}
-                  <svg
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 text-[#F97316]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 22s7-5.8 7-12a7 7 0 1 0-14 0c0 6.2 7 12 7 12Z"
-                      fill="currentColor"
-                    />
-                    <circle cx="12" cy="10" fill="white" r="2.6" />
-                  </svg>
+          </div>
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {VALUES.map((v) => (
+              <article
+                key={v.title}
+                className="flex flex-col rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-[#1e3a8a]/20 hover:shadow-md"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1e3a8a]/8 text-[#1e3a8a]">
+                  {v.icon}
                 </span>
+                <h3 className="mt-5 text-lg font-black text-[#111827]">{v.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-gray-500">{v.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Timeline */}
+      <section className="px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center">
+            <span className="section-kicker mx-auto">Our Journey</span>
+            <h2 className="mt-4 text-4xl font-black leading-tight tracking-tight text-[#111827] sm:text-5xl">
+              How We Got Here
+            </h2>
+          </div>
+
+          <div className="relative mt-14">
+            {/* Vertical line */}
+            <div className="absolute left-6 top-0 h-full w-px bg-gray-200 sm:left-1/2" />
+
+            <div className="flex flex-col gap-10">
+              {MILESTONES.map((m, i) => (
+                <div
+                  key={m.year}
+                  className={`relative flex items-start gap-6 sm:gap-10 ${i % 2 === 0 ? 'sm:flex-row' : 'sm:flex-row-reverse'}`}
+                >
+                  {/* Content */}
+                  <div className={`flex-1 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm ${i % 2 === 0 ? 'sm:text-right' : 'sm:text-left'}`}>
+                    <span className="inline-flex items-center rounded-full bg-[#f97316]/10 px-3 py-1 text-xs font-black text-[#f97316]">
+                      {m.year}
+                    </span>
+                    <h3 className="mt-3 text-lg font-black text-[#111827]">{m.title}</h3>
+                    <p className="mt-1.5 text-sm leading-6 text-gray-500">{m.text}</p>
+                  </div>
+
+                  {/* Dot */}
+                  <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 border-white bg-[#1e3a8a] shadow-md sm:order-none">
+                    <span className="text-xs font-black text-white">{m.year.slice(2)}</span>
+                  </div>
+
+                  {/* Spacer for alternating layout */}
+                  <div className="hidden flex-1 sm:block" />
+                </div>
               ))}
             </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
-      <Footer />
-    </div>
+      {/* Why Choose Us */}
+      <section className="relative overflow-hidden bg-[#0c1f3d] px-5 py-20 sm:px-8 sm:py-28">
+        <div className="absolute -left-20 -top-20 h-80 w-80 rounded-full bg-[#f97316]/8 blur-3xl" />
+        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center">
+          <div>
+            <span className="section-kicker" style={{ color: '#f97316' }}>Why Choose Us</span>
+            <h2 className="mt-4 text-4xl font-black leading-tight text-white sm:text-5xl">
+              The Norm Painting Difference
+            </h2>
+            <p className="mt-5 text-base leading-7 text-white/60">
+              There are plenty of painters out there. Here&apos;s what makes our clients choose us — and come back again.
+            </p>
+            <Link
+              href="/estimate"
+              className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
+            >
+              Get Free Quote
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              { title: '10+ Years Experience', text: 'A decade of painting homes and businesses across Geelong and Melbourne to the highest standard.' },
+              { title: '7-Year Warranty', text: 'We stand behind our work. If anything fails due to workmanship, we fix it — no charge.' },
+              { title: 'Premium Materials', text: 'We only use top-grade Dulux and Taubmans paints, primers, and fillers on every project.' },
+              { title: 'Tidy Site Policy', text: 'We respect your property. Furniture is protected, dust is contained, and clean-up is included.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-xl bg-white/8 p-5">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f97316]">
+                    <svg className="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="text-sm font-black text-white">{item.title}</p>
+                    <p className="mt-1 text-sm leading-6 text-white/55">{item.text}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-white px-5 py-16 sm:px-8 sm:py-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-black tracking-tight text-[#111827] sm:text-4xl">
+            Ready to Start Your Project?
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-base text-gray-500">
+            Get in touch for a free, no-obligation quote and let our team bring your vision to life.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/estimate"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#1e3a8a] px-8 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
+            >
+              Get Free Quote
+            </Link>
+            <Link
+              href="/projects"
+              className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-gray-200 px-8 text-sm font-bold text-gray-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
+            >
+              View Our Work
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
-
-const testimonials = [
-  {
-    name: "Angelique Rita",
-    text: "Patient and professional team with neat finish quality.",
-    image:
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=85",
-  },
-  {
-    name: "Victoria Davy",
-    text: "Great communication and quality delivery on schedule.",
-    image:
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=85",
-  },
-  {
-    name: "Jamie Sweeney",
-    text: "Excellent exterior repaint and preparation detail.",
-    image:
-      "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1200&q=85",
-  },
-];

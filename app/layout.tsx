@@ -1,49 +1,52 @@
-﻿import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins, Inter } from "next/font/google";
-import "./globals.css";
-import FloatingContactButton from "./components/floating-contact-button";
-import FloatingGoogleReviews from "./components/floating-google-reviews";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import type { Metadata } from 'next';
+import { Poppins, Inter } from 'next/font/google';
+import './globals.css';
+import Navbar from './components/ui/Navbar';
+import Footer from './components/ui/Footer';
+import GoogleReviews from './components/ui/GoogleReviews';
+import FloatingContactButton from './components/ui/FloatingContactButton';
 
 const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
-  display: "swap",
+  variable: '--font-poppins',
+  subsets: ['latin'],
+  weight: ['600', '700', '800', '900'],
+  display: 'swap',
 });
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
+  variable: '--font-inter',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Norm Painting",
+  title: {
+    default: 'Norm Painting | Professional Painters Geelong & Melbourne',
+    template: '%s | Norm Painting',
+  },
   description:
-    "Professional house painters in Geelong and Melbourne specialising in interior, exterior, and full repainting services.",
+    'Norm Painting delivers premium interior, exterior, and commercial painting services across Geelong and Melbourne. Free quotes, 7-year warranty, fully insured.',
   keywords: [
-    "Norm Painting",
-    "house painters Geelong",
-    "house painters Melbourne",
-    "interior painting",
-    "exterior painting",
-    "residential painting",
+    'painters Geelong',
+    'painters Melbourne',
+    'house painting Geelong',
+    'interior painting',
+    'exterior painting',
+    'commercial painting',
+    'Norm Painting',
+    'painting services Victoria',
   ],
   openGraph: {
-    title: "Norm Painting",
+    title: 'Norm Painting | Professional Painters Geelong & Melbourne',
     description:
-      "Professional house painting services in Geelong and Melbourne.",
-    type: "website",
+      'Premium painting services across Geelong and Melbourne. Interior, exterior, commercial and colour consultation. Free quotes.',
+    type: 'website',
+    locale: 'en_AU',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -54,15 +57,16 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      data-scroll-behavior="smooth"
+      lang="en-AU"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} h-full antialiased`}
+      className={`${poppins.variable} ${inter.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full" suppressHydrationWarning>
+      <body className="min-h-full bg-[#f8fafc] text-[#111827]" suppressHydrationWarning>
+        <Navbar />
         {children}
+        <Footer />
+        <GoogleReviews />
         <FloatingContactButton />
-        <FloatingGoogleReviews />
       </body>
     </html>
   );

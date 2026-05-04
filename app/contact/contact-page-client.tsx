@@ -1,403 +1,308 @@
-﻿"use client";
+'use client';
 
-import { FormEvent, useState } from "react";
-import { submitLead } from "../lib/submitLead";
-import { Header, Footer } from "../components/landing-page-sections";
+import React, { useState } from 'react';
+import { submitLead } from '../lib/submitLead';
+import Link from 'next/link';
 
-const values = [
+const CONTACT_INFO = [
   {
-    title: "7-Year Workmanship Warranty",
-    text: "Our high-quality paint finishes ensure long-lasting beauty.",
+    label: 'Phone',
+    value: '0406 342 731',
+    href: 'tel:0406342731',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l1.27-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+      </svg>
+    ),
   },
   {
-    title: "Expert Interior & Exterior Painting",
-    text: "From interior wall painting to weatherboard restoration, we cover it all.",
+    label: 'Email',
+    value: 'info@normpainting.com.au',
+    href: 'mailto:info@normpainting.com.au',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
+      </svg>
+    ),
   },
   {
-    title: "Reliable & Timely Service",
-    text: "We respect your time and complete projects as promised.",
+    label: 'Address',
+    value: 'Suite 3, 200 Malop St, Geelong VIC 3220',
+    href: 'https://maps.google.com/?q=200+Malop+St+Geelong+VIC+3220',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    ),
   },
   {
-    title: "Affordable & Transparent Pricing",
-    text: "Get a house painting quote in Geelong with no hidden fees.",
+    label: 'Business Hours',
+    value: 'Mon–Fri 7am–5pm · Sat 8am–2pm',
+    href: null,
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
   },
-  {
-    title: "Premium Paints & Eco-Friendly Options",
-    text: "We use non-toxic interior paints and durable exterior paints from trusted brands.",
-  },
-];
-
-const areas = [
-  "Geelong",
-  "Melbourne",
-  "Braybrook",
-  "Kingsville",
-  "Williamstown",
-  "West Footscray",
-  "Seddon",
-  "Yarraville",
-  "Docklands",
-  "Newport",
-  "Rippleside",
-  "South Geelong",
-  "Queenscliff",
-  "Lara",
-  "Corio",
-  "Bell Post Hill",
-  "Geelong West",
-  "Newtown",
-  "Armstrong Creek",
-  "Grovedale",
-  "North Geelong",
-  "Norlane",
-  "Ocean Grove",
-  "Highton",
-  "Torquay",
-  "Belmont",
-  "Manifold Heights",
-  "Drysdale",
 ];
 
 export function ContactPageClient() {
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: { preventDefault(): void; currentTarget: HTMLFormElement }) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") || "").trim();
-    const email = String(data.get("email") || "").trim();
-    const phone = String(data.get("phone") || "").trim();
-    const description = String(data.get("description") || "").trim();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const name = String(data.get('name') || '').trim();
+    const email = String(data.get('email') || '').trim();
+    const phone = String(data.get('phone') || '').trim();
+    const description = String(data.get('description') || '').trim();
 
     if (!name || !email || !description) {
-      setErrorMsg("Please fill in name, email and message.");
-      setStatus("error");
+      setErrorMsg('Please fill in your name, email, and message.');
+      setStatus('error');
       return;
     }
 
-    setStatus("loading");
-    setErrorMsg("");
+    setStatus('loading');
+    setErrorMsg('');
 
     try {
       await submitLead({ name, email, phone, description });
-      setStatus("success");
-      event.currentTarget.reset();
+      form.reset();
+      setStatus('success');
     } catch (err) {
-      setErrorMsg(
-        err instanceof Error ? err.message : "Network error. Please try again.",
-      );
-      setStatus("error");
+      setErrorMsg(err instanceof Error ? err.message : 'Network error. Please try again.');
+      setStatus('error');
     }
   }
 
   return (
-    <main className="min-h-screen bg-white text-[#050505]">
-      <Header />
-
-      <section className="px-5 pb-20 pt-20 text-center sm:px-8 sm:pb-28 sm:pt-28 lg:pb-32 lg:pt-32">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#1E3A8A] sm:text-sm">
-          Connect the Best House Painters in Geelong
-        </p>
-        <h1 className="mx-auto mt-6 max-w-180 text-[42px] font-black leading-[1.05] tracking-tight text-[#111827] sm:text-7xl lg:text-[88px]">
-          Norm Painting
-          <br />
-          Painting &<br />
-          Decorating
-        </h1>
-        <p className="mx-auto mt-8 max-w-230 text-[15px] leading-7 text-gray-600 sm:text-lg sm:leading-8">
-          Looking for professional house painters in Geelong? Whether you need{" "}
-          <span className="font-semibold text-[#1E3A8A]">
-            interior house painting, exterior home painting
+    <main>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-[#0c1f3d] px-5 pb-20 pt-36 sm:px-8 sm:pt-44 sm:pb-28">
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
+        <div className="absolute -left-20 top-0 h-80 w-80 rounded-full bg-[#f97316]/8 blur-3xl" />
+        <div className="relative mx-auto max-w-4xl text-center">
+          <span className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />
+            Get In Touch
           </span>
-          , or a{" "}
-          <span className="font-semibold text-[#1E3A8A]">
-            full house repaint
-          </span>
-          , we are here to help. Contact{" "}
-          <span className="font-semibold text-[#F97316]">Norm Painting</span>{" "}
-          today for a free quote and let our{" "}
-          <span className="font-semibold text-[#F97316]">expert painters</span>{" "}
-          bring your vision to life.
-        </p>
-        <div className="mt-9 flex justify-center gap-4">
-          <a
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#F97316] px-7 text-base font-semibold text-white shadow-lg shadow-orange-200 transition hover:bg-[#EA6C07] hover:-translate-y-0.5"
-            href="tel:0406342731"
-          >
-            Call
-          </a>
-          <a
-            className="inline-flex min-h-12 items-center justify-center rounded-full border-2 border-[#1E3A8A] px-7 text-base font-semibold text-[#1E3A8A] transition hover:bg-[#1E3A8A] hover:text-white"
-            href="mailto:info@normpainting.com"
-          >
-            Email
-          </a>
+          <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight text-white sm:text-6xl">
+            Let&apos;s Talk About
+            <br />
+            <span className="text-[#f97316]">Your Project</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
+            Whether you need a quick quote, some colour advice, or want to discuss a commercial project — we&apos;re here and happy to help.
+          </p>
         </div>
       </section>
 
-      <section className="bg-linear-to-br from-[#0f172a] to-[#1e3a8a] px-5 py-16 text-white sm:px-8 sm:py-20 lg:py-28">
-        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.9fr_1fr] lg:items-center">
+      {/* Contact Info + Form */}
+      <section className="px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_1.4fr]">
+
+          {/* Left: Info */}
           <div>
-            <p className="text-sm font-black">Reach Out Now</p>
-            <h2 className="mt-4 max-w-155 text-[36px] font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Get a Free Quote from the Best Painters in Geelong
+            <span className="section-kicker">Contact Details</span>
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-[#111827] sm:text-4xl">
+              We&apos;d Love to Hear From You
             </h2>
-            <p className="mt-6 max-w-155 text-base leading-8 text-white/85">
-              We offer affordable house painting services with high-quality
-              finishes and a 5-year workmanship warranty. Fill out the form
-              below or call us directly to discuss your painting project.
+            <p className="mt-4 text-base leading-7 text-gray-500">
+              Reach out any way you prefer. We aim to respond to all enquiries within one business day.
             </p>
 
-            <div className="mt-9 grid gap-7">
-              <ContactInfo
-                href="mailto:info@normpainting.com"
-                icon="mail"
-                label="Email"
-                value="info@normpainting.com"
-              />
-              <ContactInfo
+            <div className="mt-8 flex flex-col gap-4">
+              {CONTACT_INFO.map((item) => (
+                <div key={item.label} className="flex items-start gap-4 rounded-xl border border-gray-100 bg-[#f8fafc] p-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1e3a8a]/8 text-[#1e3a8a]">
+                    {item.icon}
+                  </span>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-wider text-gray-400">{item.label}</p>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        target={item.href.startsWith('http') ? '_blank' : undefined}
+                        rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        className="mt-1 block text-sm font-semibold text-[#111827] transition hover:text-[#1e3a8a]"
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="mt-1 text-sm font-semibold text-[#111827]">{item.value}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick actions */}
+            <div className="mt-8 flex flex-col gap-3">
+              <a
                 href="tel:0406342731"
-                icon="phone"
-                label="Phone"
-                value="0406 342 731"
-              />
-              <ContactInfo
-                href="https://maps.google.com/?q=Suite+3,+Ground+Floor,+200+Malop+St+Geelong+Vic+3220"
-                icon="pin"
-                label="Address"
-                value="Suite 3, Ground Floor, 200 Malop St Geelong Vic 3220"
-              />
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1e3a8a] px-7 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l1.27-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+                Call Us Now
+              </a>
+              <Link
+                href="/estimate"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-[#f97316] px-7 text-sm font-bold text-[#f97316] transition hover:bg-[#f97316] hover:text-white"
+              >
+                Get a Written Quote
+              </Link>
             </div>
           </div>
 
-          <form
-            className="mx-auto w-full max-w-140 rounded-3xl border border-white/45 bg-[#2c2c2c] p-5 sm:p-7"
-            onSubmit={handleSubmit}
-          >
-            <div className="grid gap-4">
-              <input
-                className="contact-field min-h-14"
-                name="name"
-                placeholder="Full Name"
-                required
-                type="text"
-              />
-              <input
-                className="contact-field min-h-14"
-                name="email"
-                placeholder="Email"
-                required
-                type="email"
-              />
-              <input
-                className="contact-field min-h-14"
-                name="phone"
-                placeholder="Phone Number"
-                type="tel"
-              />
-              <textarea
-                className="contact-field min-h-40 resize-none py-4"
-                name="description"
-                placeholder="Message"
-                required
-              />
-              <button
-                className="mt-1 inline-flex min-h-12 items-center justify-center rounded-full bg-[#F97316] px-6 text-base font-semibold text-white disabled:opacity-60 transition hover:bg-[#EA6C07]"
-                disabled={status === "loading"}
-                type="submit"
-              >
-                {status === "loading" ? "Sending…" : "Submit"}
-              </button>
-              {status === "success" && (
-                <p className="text-center text-sm font-semibold text-green-400">
-                  Thank you! We&rsquo;ll be in touch within one business day.
+          {/* Right: Form */}
+          <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl shadow-black/5 sm:p-10">
+            <h3 className="text-xl font-black text-[#111827]">Send Us a Message</h3>
+            <p className="mt-1.5 text-sm text-gray-500">We&apos;ll get back to you within one business day.</p>
+
+            {status === 'success' ? (
+              <div className="mt-8 flex flex-col items-center rounded-2xl bg-green-50 px-6 py-12 text-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+                  <svg className="h-7 w-7 text-green-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                  </svg>
+                </span>
+                <h4 className="mt-4 text-lg font-black text-green-800">Message Sent!</h4>
+                <p className="mt-2 text-sm text-green-700">
+                  Thanks for reaching out. We&apos;ll be in touch within one business day.
                 </p>
-              )}
-              {status === "error" && (
-                <p className="text-center text-sm font-semibold text-red-400">
-                  {errorMsg}
-                </p>
-              )}
-            </div>
-          </form>
+                <button
+                  onClick={() => setStatus('idle')}
+                  className="mt-6 inline-flex min-h-10 items-center rounded-full bg-green-600 px-6 text-sm font-bold text-white transition hover:bg-green-700"
+                >
+                  Send Another Message
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4" noValidate>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500" htmlFor="name">
+                      Full Name <span className="text-[#f97316]">*</span>
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      required
+                      placeholder="Jane Smith"
+                      className="h-12 rounded-xl border border-gray-200 bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-gray-400 focus:border-[#1e3a8a] focus:ring-2 focus:ring-[#1e3a8a]/15"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500" htmlFor="email">
+                      Email Address <span className="text-[#f97316]">*</span>
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      placeholder="jane@example.com"
+                      className="h-12 rounded-xl border border-gray-200 bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-gray-400 focus:border-[#1e3a8a] focus:ring-2 focus:ring-[#1e3a8a]/15"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500" htmlFor="phone">
+                    Phone Number
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="0400 000 000"
+                    className="h-12 rounded-xl border border-gray-200 bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-gray-400 focus:border-[#1e3a8a] focus:ring-2 focus:ring-[#1e3a8a]/15"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500" htmlFor="description">
+                    Your Message <span className="text-[#f97316]">*</span>
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    required
+                    rows={5}
+                    placeholder="Tell us about your project — type of work, location, and any other details..."
+                    className="resize-none rounded-xl border border-gray-200 bg-[#f8fafc] px-4 py-3 text-sm text-[#111827] outline-none placeholder:text-gray-400 focus:border-[#1e3a8a] focus:ring-2 focus:ring-[#1e3a8a]/15"
+                  />
+                </div>
+
+                {status === 'error' && (
+                  <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+                    {errorMsg}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="mt-1 inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+                >
+                  {status === 'loading' ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                      </svg>
+                      Sending…
+                    </span>
+                  ) : (
+                    'Send Message'
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </section>
 
-      <section className="px-5 py-16 text-center sm:px-8 sm:py-20 lg:py-28">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#1E3A8A]">
-          Our Core Values
-        </p>
-        <h2 className="mt-4 text-[38px] font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">
-          What we Deliver
-        </h2>
-        <p className="mx-auto mt-6 max-w-185 text-base leading-8 text-[#1c1c1c]">
-          Our work is guided by key values that set us apart from other painting
-          contractors in Geelong:
-        </p>
-        <div className="mx-auto mt-16 grid max-w-6xl gap-x-10 gap-y-16 md:grid-cols-6">
-          {values.map((value, index) => (
-            <article
-              className={`md:col-span-2 ${index === 3 ? "md:col-start-2" : ""}`}
-              key={value.title}
-            >
-              <Pinwheel />
-              <h3 className="mx-auto mt-6 max-w-85 text-[28px] font-black leading-tight tracking-tight sm:text-3xl lg:text-4xl">
-                {value.title}
-              </h3>
-              <p className="mx-auto mt-5 max-w-90 text-sm leading-7 text-[#1c1c1c]">
-                {value.text}
-              </p>
-            </article>
-          ))}
+      {/* Map */}
+      <section className="bg-[#f8fafc] px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center">
+            <span className="section-kicker mx-auto">Find Us</span>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-[#111827] sm:text-4xl">
+              Our Location
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg text-base text-gray-500">
+              Suite 3, 200 Malop Street, Geelong VIC 3220
+            </p>
+          </div>
+          <div className="mt-10 overflow-hidden rounded-3xl border border-gray-200 shadow-xl">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3142.4382093!2d144.3547!3d-38.1470!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad41c2c00000001%3A0x0!2s200+Malop+St+Geelong+VIC+3220!5e0!3m2!1sen!2sau!4v1700000000000"
+              width="100%"
+              height="450"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Norm Painting office location"
+            />
+          </div>
         </div>
       </section>
-
-      <section className="bg-[#f1f1f1] px-5 py-16 text-center sm:px-8 sm:py-20 lg:py-28">
-        <p className="text-sm font-black">Areas We Serve</p>
-        <h2 className="mt-4 text-[38px] font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">
-          Where We Available
-        </h2>
-        <p className="mx-auto mt-6 max-w-212.5 text-base leading-8 text-[#1c1c1c]">
-          We provide residential{" "}
-          <span className="font-semibold text-[#F97316]">
-            painting services
-          </span>{" "}
-          across Geelong, Melbourne and surrounding suburbs within a 45km
-          radius, including:
-        </p>
-        <div className="mx-auto mt-8 flex max-w-245 flex-wrap justify-center gap-3">
-          {areas.map((area) => (
-            <span
-              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-black/15 bg-[#f8f8f8] px-5 text-sm font-semibold leading-none text-[#222]"
-              key={area}
-            >
-              {area}
-              <MapPin />
-            </span>
-          ))}
-        </div>
-      </section>
-
-      <Footer />
     </main>
-  );
-}
-
-function ContactInfo({
-  href,
-  icon,
-  label,
-  value,
-}: {
-  href: string;
-  icon: "mail" | "phone" | "pin";
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="grid grid-cols-[28px_1fr] gap-x-4">
-      <ContactIcon type={icon} />
-      <div>
-        <h3 className="text-xl font-black leading-none tracking-tight">
-          {label}
-        </h3>
-        <a
-          className="mt-3 block text-sm leading-6 underline underline-offset-2"
-          href={href}
-        >
-          {value}
-        </a>
-      </div>
-    </div>
-  );
-}
-
-function Pinwheel() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="mx-auto h-7 w-7 text-[#F97316]"
-      viewBox="0 0 36 36"
-    >
-      <path
-        d="M18 2c4.2 0 7.6 3.4 7.6 7.6S22.2 18 18 18V2Z"
-        fill="currentColor"
-      />
-      <path
-        d="M34 18c0 4.2-3.4 7.6-7.6 7.6S18 22.2 18 18h16Z"
-        fill="currentColor"
-      />
-      <path
-        d="M18 34c-4.2 0-7.6-3.4-7.6-7.6S13.8 18 18 18v16Z"
-        fill="currentColor"
-      />
-      <path
-        d="M2 18c0-4.2 3.4-7.6 7.6-7.6S18 13.8 18 18H2Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function MapPin() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-4 shrink-0 text-[#ff5c0b]"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M12 22s7-5.8 7-12a7 7 0 1 0-14 0c0 6.2 7 12 7 12Z"
-        fill="currentColor"
-      />
-      <circle cx="12" cy="10" fill="white" r="2.6" />
-    </svg>
-  );
-}
-
-function ContactIcon({ type }: { type: "mail" | "phone" | "pin" }) {
-  if (type === "mail") {
-    return (
-      <svg
-        className="h-7 w-7 text-white"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4"
-        viewBox="0 0 24 24"
-      >
-        <path d="M3 6.5h18v12H3z" />
-        <path d="m3 7 9 7 9-7" />
-      </svg>
-    );
-  }
-
-  if (type === "phone") {
-    return (
-      <svg
-        className="h-7 w-7 text-white"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4"
-        viewBox="0 0 24 24"
-      >
-        <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.7 2.6a2 2 0 0 1-.5 2.1L8 9.7a16 16 0 0 0 6.3 6.3l1.3-1.3a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg
-      className="h-7 w-7 text-white"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      viewBox="0 0 24 24"
-    >
-      <path d="M12 22s7-5.8 7-12a7 7 0 1 0-14 0c0 6.2 7 12 7 12Z" />
-      <circle cx="12" cy="10" r="2.5" />
-    </svg>
   );
 }
