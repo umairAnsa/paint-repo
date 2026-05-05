@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { submitLead } from '../../lib/submitLead';
 
 const SLIDES = [
   {
@@ -14,8 +15,6 @@ const SLIDES = [
     highlight: 'Every Home',
     subtitle:
       'Transform your living spaces with expert interior and exterior painting by Geelong\'s most trusted team — on time, every time.',
-    cta1: { label: 'Get Free Quote', href: '/estimate' },
-    cta2: { label: 'View Our Work', href: '/projects' },
   },
   {
     id: 2,
@@ -25,8 +24,6 @@ const SLIDES = [
     highlight: 'Commercial',
     subtitle:
       'We handle offices, retail spaces, warehouses, and industrial facilities across Melbourne and Geelong with minimal disruption.',
-    cta1: { label: 'Our Services', href: '/services' },
-    cta2: { label: 'Contact Us', href: '/contact' },
   },
   {
     id: 3,
@@ -36,14 +33,131 @@ const SLIDES = [
     highlight: 'Inside & Out',
     subtitle:
       'Not sure what colours suit your property? Our expert consultants guide you to the perfect palette for any interior or exterior project.',
-    cta1: { label: 'Book Consultation', href: '/contact' },
-    cta2: { label: 'View Gallery', href: '/projects' },
   },
 ];
 
+const SERVICES = [
+  'Interior Painting',
+  'Exterior Painting',
+  'Commercial Painting',
+  'Fence & Deck Painting',
+  'Roof Painting',
+  'Colour Consultation',
+  'Other',
+];
+
+type FormStatus = 'idle' | 'loading' | 'success' | 'error';
+
+function QuoteForm() {
+  const [name, setName]       = useState('');
+  const [phone, setPhone]     = useState('');
+  const [email, setEmail]     = useState('');
+  const [service, setService] = useState('');
+  const [status, setStatus]   = useState<FormStatus>('idle');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      await submitLead({ name, phone, email, description: `Service: ${service || 'Not specified'}` });
+      setStatus('success');
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  if (status === 'success') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center justify-center gap-4 py-10 text-center"
+      >
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f97316]">
+          <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <p className="text-lg font-black text-white">Request Received!</p>
+        <p className="text-sm text-white/70">We&apos;ll call you back within 2 hours.</p>
+      </motion.div>
+    );
+  }
+
+  const inputClass =
+    'w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/40 outline-none transition focus:border-[#f97316]/60 focus:bg-white/15 focus:ring-1 focus:ring-[#f97316]/40';
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-3">
+        <input
+          required
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          className={inputClass}
+        />
+        <input
+          required
+          type="tel"
+          placeholder="Phone Number"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          className={inputClass}
+        />
+      </div>
+      <input
+        required
+        type="email"
+        placeholder="Email Address"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        className={inputClass}
+      />
+      <select
+        value={service}
+        onChange={e => setService(e.target.value)}
+        className={`${inputClass} appearance-none`}
+      >
+        <option value="" disabled className="bg-[#0c1f3d] text-white">Select Service</option>
+        {SERVICES.map(s => (
+          <option key={s} value={s} className="bg-[#0c1f3d] text-white">{s}</option>
+        ))}
+      </select>
+
+      {status === 'error' && (
+        <p className="text-xs text-red-400">Something went wrong. Please try again.</p>
+      )}
+
+      <motion.button
+        type="submit"
+        disabled={status === 'loading'}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="mt-1 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#f97316] text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition hover:bg-[#ea6c07] disabled:opacity-70"
+      >
+        {status === 'loading' ? (
+          <span className="flex items-center gap-2">
+            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            Sending...
+          </span>
+        ) : (
+          'Get Free Quote →'
+        )}
+      </motion.button>
+
+      <p className="text-center text-[11px] text-white/35">No obligation · Free written quote · Reply within 2 hrs</p>
+    </form>
+  );
+}
+
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused]   = useState(false);
 
   const next = useCallback(() => setCurrent((i) => (i + 1) % SLIDES.length), []);
   const prev = useCallback(() => setCurrent((i) => (i - 1 + SLIDES.length) % SLIDES.length), []);
@@ -84,8 +198,8 @@ export default function HeroSlider() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Multi-layer gradient overlay */}
-      <div className="absolute inset-0 bg-linear-to-r from-[#061524]/90 via-[#0c1f3d]/65 to-transparent" />
+      {/* Overlays */}
+      <div className="absolute inset-0 bg-linear-to-r from-[#061524]/92 via-[#0c1f3d]/70 to-[#0c1f3d]/40" />
       <div className="absolute inset-0 bg-linear-to-t from-[#061524]/50 via-transparent to-transparent" />
 
       {/* Grid pattern */}
@@ -98,9 +212,11 @@ export default function HeroSlider() {
         }}
       />
 
-      {/* Slide Content */}
+      {/* Content */}
       <div className="relative flex h-full items-center px-5 sm:px-8">
-        <div className="mx-auto w-full max-w-7xl">
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-2">
+
+          {/* Left — Slide text */}
           <AnimatePresence mode="wait">
             <motion.div
               key={slide.id}
@@ -108,37 +224,32 @@ export default function HeroSlider() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.75, ease: 'easeOut', delay: 0.15 }}
-              className="max-w-2xl"
             >
-              {/* Badge */}
               <span className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />
                 {slide.badge}
               </span>
 
-              {/* Heading */}
-              <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+              <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-5xl xl:text-6xl">
                 {slide.title}
               </h1>
 
-              {/* Subtitle */}
               <p className="mt-5 max-w-lg text-base leading-7 text-white/70 sm:text-lg">
                 {slide.subtitle}
               </p>
 
-              {/* CTAs */}
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
-                  href={slide.cta1.href}
-                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-xl shadow-orange-500/30 transition hover:-translate-y-0.5 hover:bg-[#ea6c07] hover:shadow-orange-500/45"
+                  href="/estimate"
+                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-xl shadow-orange-500/30 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
                 >
-                  {slide.cta1.label}
+                  Get Free Quote
                 </Link>
                 <Link
-                  href={slide.cta2.href}
+                  href="/projects"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/30 px-7 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/55 hover:bg-white/10"
                 >
-                  {slide.cta2.label}
+                  View Our Work
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
@@ -146,6 +257,32 @@ export default function HeroSlider() {
               </div>
             </motion.div>
           </AnimatePresence>
+
+          {/* Right — Quote Form */}
+          <motion.div
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
+            className="hidden lg:block"
+          >
+            <div className="rounded-3xl border border-white/15 bg-white/10 p-7 shadow-2xl backdrop-blur-md">
+              {/* Form header */}
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f97316]">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-base font-black text-white">Get a Free Quote</p>
+                  <p className="text-xs text-white/50">We reply within 2 hours</p>
+                </div>
+              </div>
+
+              <QuoteForm />
+            </div>
+          </motion.div>
+
         </div>
       </div>
 
