@@ -120,21 +120,33 @@ function createTransporter() {
 }
 
 export async function sendLeadEmail(data: LeadInput): Promise<void> {
+  logger.info('[Email] Attempting to send email...', { to: process.env.EMAIL_TO, from: data.name });
+
   if (!process.env.EMAIL || !process.env.EMAIL_PASS) {
-    logger.warn('[Email] EMAIL or EMAIL_PASS not set — skipping email notification.');
+    logger.warn('[Email] EMAIL or EMAIL_PASS not set — skipping.');
     return;
   }
 
   const transporter = createTransporter();
   const toAddress = process.env.EMAIL_TO || process.env.EMAIL;
 
-  await transporter.sendMail({
-    from: `"Norm Painting Website" <${process.env.EMAIL}>`,
-    to: toAddress,
-    replyTo: data.email,
-    subject: `New Lead: ${data.name} — Norm Painting`,
-    html: buildEmailHtml(data),
-  });
-
-  logger.info('[Email] Lead notification sent.', { to: toAddress, from: data.name });
+  try {
+    const info = await transporter.sendMail({
+      from: `"Norm Painting Website" <${process.env.EMAIL}>`,
+      to: toAddress,
+      replyTo: data.email,
+      subject: `New Lead: ${data.name} — Norm Painting`,
+      html: buildEmailHtml(data),
+    });
+    logger.info('[Email] ✅ Sent successfully.', { messageId: info.messageId, to: toAddress });
+  } catch (err: unknown) {
+    const e = err as Error & { code?: string; responseCode?: number; response?: string };
+    logger.error('[Email] ❌ Send failed.', {
+      message: e.message,
+      code: e.code,
+      responseCode: e.responseCode,
+      response: e.response,
+    });
+    throw err;
+  }
 }
