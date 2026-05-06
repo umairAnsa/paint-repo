@@ -95,7 +95,7 @@ export default function Footer() {
             <h3 className="mb-5 text-xs font-black uppercase tracking-widest text-[#f97316]">Get In Touch</h3>
             <ul className="flex flex-col gap-5">
               <li>
-                <a href="tel:0406342731" className="group flex items-start gap-3">
+                <a href="tel:+61406342731" className="group flex items-start gap-3">
                   <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f97316]/10">
                     <svg className="h-4 w-4 text-[#f97316]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l1.27-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -103,12 +103,12 @@ export default function Footer() {
                   </span>
                   <span>
                     <span className="block text-xs font-bold uppercase tracking-wider text-white/40">Phone</span>
-                    <span className="mt-1 block text-sm text-white/60 transition group-hover:text-white">0406 342 731</span>
+                    <span className="mt-1 block text-sm text-white/60 transition group-hover:text-white">+61 406 342 731</span>
                   </span>
                 </a>
               </li>
               <li>
-                <a href="mailto:info@normpainting.com.au" className="group flex items-start gap-3">
+                <a href="mailto:info@normpainting.com" className="group flex items-start gap-3">
                   <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f97316]/10">
                     <svg className="h-4 w-4 text-[#f97316]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -117,7 +117,7 @@ export default function Footer() {
                   </span>
                   <span>
                     <span className="block text-xs font-bold uppercase tracking-wider text-white/40">Email</span>
-                    <span className="mt-1 block text-sm text-white/60 transition group-hover:text-white">info@normpainting.com.au</span>
+                    <span className="mt-1 block text-sm text-white/60 transition group-hover:text-white">info@normpainting.com</span>
                   </span>
                 </a>
               </li>
@@ -131,7 +131,7 @@ export default function Footer() {
                   </span>
                   <span>
                     <span className="block text-xs font-bold uppercase tracking-wider text-white/40">Location</span>
-                    <span className="mt-1 block text-sm text-white/60">Suite 3, 200 Malop St,<br />Geelong VIC 3220</span>
+                    <span className="mt-1 block text-sm text-white/60">Suite 3, 200 Malop St,<br />Geelong VIC 3220<br />Melbourne VIC, Australia</span>
                   </span>
                 </div>
               </li>

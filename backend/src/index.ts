@@ -5,7 +5,9 @@ import path from 'path';
 
 import { connectDB } from './db';
 import { globalLimiter } from './middleware/rateLimiter';
-import leadRouter from './routes/lead';
+import leadRouter    from './routes/lead';
+import invoiceRouter from './routes/invoice';
+import quoteRouter   from './routes/quote';
 import { logger } from './lib/logger';
 import { logTwilioConfig } from './services/twilioService';
 
@@ -29,7 +31,9 @@ app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
 // ── Routes ──────────────────────────────────────────────────────────────────────
 
-app.use('/api/lead', leadRouter);
+app.use('/api/lead',    leadRouter);
+app.use('/api/invoice', invoiceRouter);
+app.use('/api/quote',   quoteRouter);
 
 app.get('/health', (_req, res) => {
   res.json({
