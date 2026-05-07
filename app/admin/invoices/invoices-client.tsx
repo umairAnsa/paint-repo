@@ -215,6 +215,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
     }
   }, [adminKey, onLogout]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadData(); }, [loadData]);
 
   async function handleSend(inv: Invoice) {
