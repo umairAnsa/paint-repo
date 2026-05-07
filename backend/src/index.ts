@@ -1,4 +1,6 @@
 import 'dotenv/config';
+console.log('[DEBUG] MONGO_URI:', process.env.MONGO_URI ? 'SET' : 'NOT SET');
+console.log('[DEBUG] ENV KEYS:', Object.keys(process.env).filter(k => !k.startsWith('npm_')).join(', '));
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
