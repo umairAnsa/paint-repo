@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { logger } from '../lib/logger';
 import type { LeadInput } from '../validation/leadSchema';
 
@@ -24,7 +24,6 @@ function buildEmailHtml(data: LeadInput): string {
       <td align="center">
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
 
-          <!-- Header: white background so the dark logo is naturally visible -->
           <tr>
             <td style="background:#ffffff;border-radius:16px 16px 0 0;padding:32px 40px 24px;text-align:center;border-bottom:4px solid #f97316;">
               <img
@@ -37,7 +36,6 @@ function buildEmailHtml(data: LeadInput): string {
             </td>
           </tr>
 
-          <!-- Body -->
           <tr>
             <td style="background:#ffffff;padding:40px;">
 
@@ -45,7 +43,6 @@ function buildEmailHtml(data: LeadInput): string {
                 A new enquiry was submitted through your website. Details are below.
               </p>
 
-              <!-- Details table -->
               <table width="100%" cellpadding="0" cellspacing="0"
                 style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;border-collapse:separate;">
 
@@ -75,7 +72,6 @@ function buildEmailHtml(data: LeadInput): string {
 
               </table>
 
-              <!-- CTA buttons -->
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
                 <tr>
                   <td>
@@ -91,7 +87,6 @@ function buildEmailHtml(data: LeadInput): string {
             </td>
           </tr>
 
-          <!-- Footer -->
           <tr>
             <td style="background:#f8fafc;border-top:1px solid #e5e7eb;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#9ca3af;">Norm Painting · Geelong &amp; Melbourne VIC · ABN 52 704 401 415</p>
@@ -107,48 +102,34 @@ function buildEmailHtml(data: LeadInput): string {
 </html>`;
 }
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    connectionTimeout: 10000,
-    socketTimeout: 10000,
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-}
-
 export async function sendLeadEmail(data: LeadInput): Promise<void> {
-  logger.info('[Email] Attempting to send email...', { to: process.env.EMAIL_TO, from: data.name });
+  logger.info('[Email] Attempting to send email...', { to: process.env.EMAIL_TO });
 
-  if (!process.env.EMAIL || !process.env.EMAIL_PASS) {
-    logger.warn('[Email] EMAIL or EMAIL_PASS not set — skipping.');
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn('[Email] RESEND_API_KEY not set — skipping.');
     return;
   }
 
-  const transporter = createTransporter();
-  const toAddress = process.env.EMAIL_TO || process.env.EMAIL;
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const toAddress = process.env.EMAIL_TO || 'info@normpainting.com';
 
   try {
-    const info = await transporter.sendMail({
-      from: `"Norm Painting Website" <${process.env.EMAIL}>`,
-      to: toAddress,
+    const { data: result, error } = await resend.emails.send({
+      from: 'Norm Painting Website <onboarding@resend.dev>',
+      to: [toAddress],
       replyTo: data.email,
       subject: `New Lead: ${data.name} — Norm Painting`,
       html: buildEmailHtml(data),
     });
-    logger.info('[Email] ✅ Sent successfully.', { messageId: info.messageId, to: toAddress });
-  } catch (err: unknown) {
-    const e = err as Error & { code?: string; responseCode?: number; response?: string };
-    logger.error('[Email] ❌ Send failed.', {
-      message: e.message,
-      code: e.code,
-      responseCode: e.responseCode,
-      response: e.response,
-    });
+
+    if (error) {
+      logger.error('[Email] ❌ Send failed.', error);
+      throw new Error(error.message);
+    }
+
+    logger.info('[Email] ✅ Sent successfully.', { id: result?.id, to: toAddress });
+  } catch (err) {
+    logger.error('[Email] ❌ Exception.', err);
     throw err;
   }
 }
