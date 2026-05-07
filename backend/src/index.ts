@@ -1,6 +1,4 @@
 import 'dotenv/config';
-console.log('[DEBUG] MONGO_URI:', process.env.MONGO_URI ? 'SET' : 'NOT SET');
-console.log('[DEBUG] ENV KEYS:', Object.keys(process.env).filter(k => !k.startsWith('npm_')).join(', '));
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -60,9 +58,7 @@ async function start() {
       logger.info(`Norm Painting backend running on http://localhost:${PORT}`);
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[STARTUP ERROR]', msg);
-    if (err instanceof Error) console.error(err.stack);
+    logger.error('Failed to start server.', err);
     process.exit(1);
   }
 }
