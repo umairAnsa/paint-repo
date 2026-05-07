@@ -58,7 +58,9 @@ async function start() {
       logger.info(`Norm Painting backend running on http://localhost:${PORT}`);
     });
   } catch (err) {
-    logger.error('Failed to start server.', err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[STARTUP ERROR]', msg);
+    if (err instanceof Error) console.error(err.stack);
     process.exit(1);
   }
 }
