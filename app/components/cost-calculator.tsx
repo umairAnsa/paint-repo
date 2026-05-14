@@ -109,6 +109,7 @@ export function CostCalculator() {
   const [paintType, setPaintType] = useState<"repaint" | "new">("repaint");
   const [photos, setPhotos] = useState<File[]>([]);
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const estimate = useMemo(() => {
     const roomTotal = rangeFields.reduce(
@@ -143,6 +144,7 @@ export function CostCalculator() {
       ? `Estimate: $${estimate.low.toLocaleString()} - $${estimate.high.toLocaleString()}. Notes: ${notes}`
       : `Estimate: $${estimate.low.toLocaleString()} - $${estimate.high.toLocaleString()}`;
 
+    setSubmitting(true);
     try {
       if (photos.length > 0) {
         const base64Images = await Promise.all(
@@ -169,6 +171,8 @@ export function CostCalculator() {
       form.reset();
     } catch {
       setSent(true);
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -386,13 +390,32 @@ export function CostCalculator() {
                   )}
                 </div>
 
-                <button className="button-dark" type="submit">
-                  Submit Estimate Request
+                <button
+                  className="button-dark flex items-center justify-center gap-2 disabled:opacity-70"
+                  type="submit"
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      </svg>
+                      {photos.length > 0 ? "Uploading photos…" : "Sending…"}
+                    </>
+                  ) : (
+                    "Submit Estimate Request"
+                  )}
                 </button>
                 {sent ? (
-                  <p className="text-sm font-bold text-[#1c443e]">
-                    Thanks. Your estimate request has been received.
-                  </p>
+                  <div className="flex items-start gap-3 rounded-xl border border-[#1c443e]/30 bg-[#1c443e]/10 px-4 py-3">
+                    <svg className="mt-0.5 h-5 w-5 shrink-0 text-[#1c443e]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm font-semibold text-[#1c443e]">
+                      Thanks! Your estimate request has been received. We&apos;ll be in touch within one business day.
+                    </p>
+                  </div>
                 ) : null}
               </form>
             </div>
