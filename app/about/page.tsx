@@ -166,7 +166,7 @@ export default function AboutPage() {
                 'Full surface preparation every time',
                 'Free colour consultation included',
                 'Tidy, professional crew on every job',
-                'Licensed and fully insured',
+                'Fully insured',
                 '7-year workmanship warranty',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2.5 text-sm font-semibold text-gray-700">
@@ -181,8 +181,6 @@ export default function AboutPage() {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3 rounded-xl border border-gray-100 bg-[#f8fafc] p-4 text-sm text-gray-600">
-              <span className="font-bold text-[#111827]">Licence:</span> 35000709070
-              <span className="text-gray-300">|</span>
               <span className="font-bold text-[#111827]">ABN:</span> 84 673 345 054
             </div>
           </div>

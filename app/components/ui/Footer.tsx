@@ -157,7 +157,7 @@ export default function Footer() {
       <div className="border-t border-white/8">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-6 sm:flex-row sm:px-8">
           <p className="text-sm text-white/30">
-            © {year} Norm Painting. All rights reserved. ABN: 84 673 345 054 · Licence: 35000709070
+            © {year} Norm Painting. All rights reserved. ABN: 84 673 345 054
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-sm text-white/30 transition hover:text-white/60">Privacy Policy</a>
