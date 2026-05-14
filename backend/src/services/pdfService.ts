@@ -2,6 +2,7 @@ import PDFDocument from 'pdfkit';
 import path from 'path';
 import fs from 'fs';
 import type { IInvoice } from '../models/Invoice';
+import type { LeadInput } from '../validation/leadSchema';
 
 const NAVY   = '#0c1f3d';
 const ORANGE = '#f97316';
@@ -224,6 +225,45 @@ export function generateInvoicePDF(invoice: IInvoice): Promise<Buffer> {
     if (logoExists) {
       doc.image(LOGO_PATH, ML, footerY + 12, { height: 36, fit: [100, 36] });
     }
+
+    doc.end();
+  });
+}
+
+export function generatePhotosPdf(_data: LeadInput, imageBuffers: Buffer[]): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const MARGIN = 30;
+    const GAP    = 10;
+    const COLS   = 2;
+    const W      = 595.28;
+    const H      = 841.89;
+    const cellW  = (W - MARGIN * 2 - GAP) / COLS;            // ~262px
+    const cellH  = Math.round(cellW * 0.75);                  // ~197px (4:3)
+    const rowsPerPage = Math.floor((H - MARGIN * 2 + GAP) / (cellH + GAP)); // 3 rows
+
+    const doc    = new PDFDocument({ margin: 0, size: 'A4' });
+    const chunks: Buffer[] = [];
+    doc.on('data',  (c: Buffer) => chunks.push(c));
+    doc.on('end',   () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    imageBuffers.forEach((buf, i) => {
+      const col      = i % COLS;
+      const rowTotal = Math.floor(i / COLS);
+      const pageRow  = rowTotal % rowsPerPage;
+
+      // New page when row overflows
+      if (i > 0 && col === 0 && pageRow === 0) {
+        doc.addPage();
+      }
+
+      const x = MARGIN + col * (cellW + GAP);
+      const y = MARGIN + pageRow * (cellH + GAP);
+
+      try {
+        doc.image(buf, x, y, { fit: [cellW, cellH], align: 'center', valign: 'center' });
+      } catch { /* skip unreadable */ }
+    });
 
     doc.end();
   });

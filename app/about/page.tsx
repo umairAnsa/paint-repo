@@ -183,7 +183,7 @@ export default function AboutPage() {
             <div className="mt-6 flex flex-wrap gap-3 rounded-xl border border-gray-100 bg-[#f8fafc] p-4 text-sm text-gray-600">
               <span className="font-bold text-[#111827]">Licence:</span> 35000709070
               <span className="text-gray-300">|</span>
-              <span className="font-bold text-[#111827]">ABN:</span> 52 704 401 415
+              <span className="font-bold text-[#111827]">ABN:</span> 84 673 345 054
             </div>
           </div>
 

@@ -97,9 +97,12 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
 // ── Create Quote Modal ────────────────────────────────────────────────────────
 
 function CreateModal({ lead, adminKey, onClose, onCreated }: {
-  lead: Lead; adminKey: string; onClose: () => void; onCreated: () => void;
+  lead: Lead | null; adminKey: string; onClose: () => void; onCreated: () => void;
 }) {
-  const [service,      setService]      = useState(lead.description || '');
+  const [name,         setName]         = useState(lead?.name  || '');
+  const [email,        setEmail]        = useState(lead?.email || '');
+  const [phone,        setPhone]        = useState(lead?.phone || '');
+  const [service,      setService]      = useState(lead?.description || '');
   const [price,        setPrice]        = useState('');
   const [description,  setDescription]  = useState('');
   const [validityDays, setValidityDays] = useState('7');
@@ -111,8 +114,8 @@ function CreateModal({ lead, adminKey, onClose, onCreated }: {
     setBusy(true); setErr('');
     try {
       const res = await api.createQuote(adminKey, {
-        leadId: lead._id,
-        name: lead.name, email: lead.email, phone: lead.phone,
+        leadId: lead?._id,
+        name: name.trim(), email: email.trim(), phone: phone.trim() || undefined,
         service: service.trim(),
         price: parseFloat(price),
         description: description.trim() || undefined,
@@ -133,7 +136,7 @@ function CreateModal({ lead, adminKey, onClose, onCreated }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-black text-[#111827]">Create Quote</h2>
+          <h2 className="text-lg font-black text-[#111827]">{lead ? 'Create Quote from Lead' : 'New Quote'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -141,13 +144,28 @@ function CreateModal({ lead, adminKey, onClose, onCreated }: {
           </button>
         </div>
 
-        {/* Client info */}
-        <div className="mb-4 rounded-xl bg-[#f8fafc] p-3 text-sm">
-          <p className="font-semibold text-[#111827]">{lead.name}</p>
-          <p className="text-gray-500">{lead.email}{lead.phone ? `  ·  ${lead.phone}` : ''}</p>
-        </div>
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {/* Client fields — editable in both modes */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-bold text-gray-500">NAME</label>
+              <input required value={name} onChange={e => setName(e.target.value)}
+                placeholder="Client name" className={inputClass} />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-bold text-gray-500">PHONE (optional)</label>
+              <input value={phone} onChange={e => setPhone(e.target.value)}
+                placeholder="04xx xxx xxx" className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-bold text-gray-500">EMAIL</label>
+            <input required type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="client@email.com" className={inputClass} />
+          </div>
+
+          <div className="my-1 border-t border-gray-100" />
+
           <div>
             <label className="mb-1 block text-xs font-bold text-gray-500">SERVICE</label>
             <input required value={service} onChange={e => setService(e.target.value)}
@@ -173,7 +191,7 @@ function CreateModal({ lead, adminKey, onClose, onCreated }: {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-bold text-gray-500">DESCRIPTION / NOTES (optional)</label>
+            <label className="mb-1 block text-xs font-bold text-gray-500">NOTES (optional)</label>
             <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)}
               placeholder="e.g. Includes prep work, 2 coats, colour consultation..."
               className={`${inputClass} resize-none`} />
@@ -191,15 +209,180 @@ function CreateModal({ lead, adminKey, onClose, onCreated }: {
   );
 }
 
+// ── Send Modal ─────────────────────────────────────────────────────────────────
+
+function SendModal({ quote, adminKey, onClose, onSent }: {
+  quote: Quote; adminKey: string; onClose: () => void; onSent: () => void;
+}) {
+  const [email, setEmail] = useState(quote.email);
+  const [busy,  setBusy]  = useState(false);
+  const [err,   setErr]   = useState('');
+
+  async function handleSend(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true); setErr('');
+    try {
+      const res = await api.sendQuote(adminKey, quote._id, email.trim() !== quote.email ? email.trim() : undefined);
+      if (!res.success) throw new Error(res.error || 'Send failed.');
+      onSent();
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : 'Failed.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const inputClass = 'w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/30';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-lg font-black text-[#111827]">Send Quote</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="mb-4 rounded-xl bg-[#f8fafc] p-3 text-sm">
+          <p className="font-bold text-[#0c1f3d]">{quote.quoteNumber}</p>
+          <p className="text-gray-500">{quote.service} · ${quote.price.toLocaleString('en-AU')}</p>
+        </div>
+
+        <form onSubmit={handleSend} className="flex flex-col gap-3">
+          <div>
+            <label className="mb-1 block text-xs font-bold text-gray-500">SEND TO EMAIL</label>
+            <input required type="email" value={email} onChange={e => setEmail(e.target.value)}
+              className={inputClass} />
+            {email !== quote.email && (
+              <p className="mt-1 text-xs text-[#f97316]">⚠ Different from quote email ({quote.email})</p>
+            )}
+          </div>
+
+          {err && <p className="text-xs text-red-500">{err}</p>}
+
+          <button type="submit" disabled={busy}
+            className="rounded-xl bg-[#f97316] py-3 text-sm font-bold text-white transition hover:bg-[#ea6c07] disabled:opacity-60">
+            {busy ? 'Sending...' : 'Send Quote →'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── KPI Dashboard ─────────────────────────────────────────────────────────────
+
+function KpiDashboard({ quotes, leads }: { quotes: Quote[]; leads: Lead[] }) {
+  const total     = quotes.length;
+  const accepted  = quotes.filter(q => q.status === 'Accepted');
+  const sent      = quotes.filter(q => q.status === 'Sent').length;
+  const rejected  = quotes.filter(q => q.status === 'Rejected').length;
+  const draft     = quotes.filter(q => q.status === 'Draft').length;
+  const revenue   = accepted.reduce((s, q) => s + q.price, 0);
+  const avgValue  = total > 0 ? quotes.reduce((s, q) => s + q.price, 0) / total : 0;
+  const convRate  = total > 0 ? Math.round((accepted.length / total) * 100) : 0;
+
+  // Last 6 months bar chart data
+  const now = new Date();
+  const months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    return {
+      label: d.toLocaleDateString('en-AU', { month: 'short' }),
+      year:  d.getFullYear(),
+      month: d.getMonth(),
+      count: 0,
+    };
+  });
+  quotes.forEach(q => {
+    const d = new Date(q.createdAt);
+    const m = months.find(x => x.year === d.getFullYear() && x.month === d.getMonth());
+    if (m) m.count++;
+  });
+  const maxCount = Math.max(...months.map(m => m.count), 1);
+
+  // Status breakdown bar widths
+  const statusRows = [
+    { label: 'Draft',    count: draft,            color: 'bg-gray-400' },
+    { label: 'Sent',     count: sent,             color: 'bg-blue-500' },
+    { label: 'Accepted', count: accepted.length,  color: 'bg-green-500' },
+    { label: 'Rejected', count: rejected,         color: 'bg-red-400' },
+  ];
+
+  const kpiCards = [
+    { label: 'Total Revenue',     value: `$${revenue.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`, sub: 'from accepted quotes' },
+    { label: 'Conversion Rate',   value: `${convRate}%`,                                                       sub: `${accepted.length} of ${total} quotes accepted` },
+    { label: 'Avg Quote Value',   value: `$${avgValue.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`, sub: 'across all quotes' },
+    { label: 'Total Leads',       value: String(leads.length),                                                  sub: `${total} quotes created` },
+  ];
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* KPI cards */}
+      <div className="grid grid-cols-4 gap-4">
+        {kpiCards.map(k => (
+          <div key={k.label} className="rounded-2xl border border-gray-200 bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">{k.label}</p>
+            <p className="mt-1 text-2xl font-black text-[#0c1f3d]">{k.value}</p>
+            <p className="mt-1 text-xs text-gray-400">{k.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {/* Monthly quotes bar chart */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-5">
+          <p className="mb-4 text-sm font-black text-[#111827]">Quotes — Last 6 Months</p>
+          <div className="flex items-end gap-3 h-36">
+            {months.map(m => (
+              <div key={`${m.year}-${m.month}`} className="flex flex-1 flex-col items-center gap-1">
+                <span className="text-xs font-bold text-[#0c1f3d]">{m.count || ''}</span>
+                <div
+                  className="w-full rounded-t-lg bg-[#0c1f3d] transition-all"
+                  style={{ height: `${(m.count / maxCount) * 100}%`, minHeight: m.count ? 6 : 0 }}
+                />
+                <span className="text-[10px] text-gray-400">{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Status breakdown */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-5">
+          <p className="mb-4 text-sm font-black text-[#111827]">Quotes by Status</p>
+          <div className="flex flex-col gap-3">
+            {statusRows.map(s => (
+              <div key={s.label}>
+                <div className="mb-1 flex justify-between text-xs">
+                  <span className="font-semibold text-gray-600">{s.label}</span>
+                  <span className="font-bold text-[#0c1f3d]">{s.count}</span>
+                </div>
+                <div className="h-2.5 w-full rounded-full bg-gray-100">
+                  <div
+                    className={`h-2.5 rounded-full ${s.color} transition-all`}
+                    style={{ width: total > 0 ? `${(s.count / total) * 100}%` : '0%' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => void }) {
-  const [tab,     setTab]     = useState<'quotes' | 'leads'>('quotes');
+  const [tab,     setTab]     = useState<'quotes' | 'leads' | 'dashboard'>('quotes');
   const [leads,   setLeads]   = useState<Lead[]>([]);
   const [quotes,  setQuotes]  = useState<Quote[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modal,   setModal]   = useState<Lead | null>(null);
-  const [busy,    setBusy]    = useState<Record<string, boolean>>({});
+  const [modal,     setModal]     = useState<Lead | null | undefined>(undefined);
+  const [sendModal, setSendModal] = useState<Quote | null>(null);
   const [toast,   setToast]   = useState('');
 
   function showToast(msg: string) {
@@ -220,12 +403,8 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadData(); }, [loadData]);
 
-  async function handleSend(q: Quote) {
-    setBusy(b => ({ ...b, [q._id]: true }));
-    const res = await api.sendQuote(adminKey, q._id);
-    setBusy(b => ({ ...b, [q._id]: false }));
-    showToast(res.success ? 'Quote sent!' : 'Send failed.');
-    if (res.success) loadData();
+  function handleSend(q: Quote) {
+    setSendModal(q);
   }
 
   async function handleDelete(q: Quote) {
@@ -249,11 +428,19 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
         </div>
       )}
 
-      {modal && (
+      {modal !== undefined && (
         <CreateModal
           lead={modal} adminKey={adminKey}
-          onClose={() => setModal(null)}
-          onCreated={() => { setModal(null); setTab('quotes'); loadData(); showToast('Quote created!'); }}
+          onClose={() => setModal(undefined)}
+          onCreated={() => { setModal(undefined); setTab('quotes'); loadData(); showToast('Quote created!'); }}
+        />
+      )}
+
+      {sendModal && (
+        <SendModal
+          quote={sendModal} adminKey={adminKey}
+          onClose={() => setSendModal(null)}
+          onSent={() => { setSendModal(null); loadData(); showToast('Quote sent!'); }}
         />
       )}
 
@@ -293,16 +480,22 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
           ))}
         </div>
 
-        {/* Tabs */}
-        <div className="mb-5 flex gap-1 rounded-xl border border-gray-200 bg-white p-1 w-fit">
-          {(['quotes', 'leads'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`rounded-lg px-5 py-2 text-sm font-bold transition ${
-                tab === t ? 'bg-[#0c1f3d] text-white' : 'text-gray-500 hover:text-gray-800'
-              }`}>
-              {t === 'quotes' ? `Quotes (${quotes.length})` : `Leads (${leads.length})`}
-            </button>
-          ))}
+        {/* Tabs + New Quote button */}
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex gap-1 rounded-xl border border-gray-200 bg-white p-1 w-fit">
+            {(['quotes', 'leads', 'dashboard'] as const).map(t => (
+              <button key={t} onClick={() => setTab(t)}
+                className={`rounded-lg px-5 py-2 text-sm font-bold transition ${
+                  tab === t ? 'bg-[#0c1f3d] text-white' : 'text-gray-500 hover:text-gray-800'
+                }`}>
+                {t === 'quotes' ? `Quotes (${quotes.length})` : t === 'leads' ? `Leads (${leads.length})` : 'Dashboard'}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setModal(null)}
+            className="rounded-xl bg-[#f97316] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#ea6c07]">
+            + New Quote
+          </button>
         </div>
 
         {loading ? (
@@ -311,7 +504,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
           /* ── Quotes Table ── */
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
             {quotes.length === 0 ? (
-              <p className="py-16 text-center text-sm text-gray-400">No quotes yet. Go to Leads tab to create one.</p>
+              <p className="py-16 text-center text-sm text-gray-400">No quotes yet. Click <strong>+ New Quote</strong> to create one.</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
@@ -364,10 +557,10 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                             </svg>
                           </button>
                           {/* Send */}
-                          <button onClick={() => handleSend(q)} disabled={busy[q._id]}
+                          <button onClick={() => handleSend(q)}
                             title="Send to client"
-                            className="rounded-lg bg-[#f97316] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#ea6c07] disabled:opacity-50">
-                            {busy[q._id] ? '...' : 'Send'}
+                            className="rounded-lg bg-[#f97316] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#ea6c07]">
+                            Send
                           </button>
                           {/* Delete */}
                           <button onClick={() => handleDelete(q)}
@@ -385,7 +578,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
               </table>
             )}
           </div>
-        ) : (
+        ) : tab === 'leads' ? (
           /* ── Leads Table ── */
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
             {leads.length === 0 ? (
@@ -421,7 +614,9 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
               </table>
             )}
           </div>
-        )}
+        ) : tab === 'dashboard' ? (
+          <KpiDashboard quotes={quotes} leads={leads} />
+        ) : null}
       </div>
     </div>
   );

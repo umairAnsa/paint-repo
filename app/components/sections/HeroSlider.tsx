@@ -9,7 +9,7 @@ import { submitLead } from '../../lib/submitLead';
 const SLIDES = [
   {
     id: 1,
-    image: '/projects/project-21.jpg',
+    image: '/projects/project-50.jpg',
     badge: 'Residential Painting',
     title: 'Premium Painting for Every Home',
     highlight: 'Every Home',
@@ -18,7 +18,7 @@ const SLIDES = [
   },
   {
     id: 2,
-    image: '/projects/project-04.jpg',
+    image: '/projects/project-24.jpg',
     badge: 'Commercial Solutions',
     title: 'Professional Commercial Painting Services',
     highlight: 'Commercial',
@@ -27,7 +27,7 @@ const SLIDES = [
   },
   {
     id: 3,
-    image: '/projects/project-43.jpg',
+    image: '/projects/project-49.jpg',
     badge: 'Expert Colour Consultation',
     title: 'Transform Your Space Inside & Out',
     highlight: 'Inside & Out',
@@ -164,7 +164,7 @@ export default function HeroSlider() {
 
   useEffect(() => {
     if (paused) return;
-    const id = setInterval(next, 6500);
+    const id = setInterval(next, 4000);
     return () => clearInterval(id);
   }, [next, paused]);
 

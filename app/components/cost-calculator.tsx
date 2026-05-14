@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -106,6 +106,8 @@ export function CostCalculator() {
   const [ranges, setRanges] = useState(initialRanges);
   const [garage, setGarage] = useState<"none" | "single" | "double">("none");
   const [multiStorey, setMultiStorey] = useState(false);
+  const [paintType, setPaintType] = useState<"repaint" | "new">("repaint");
+  const [photos, setPhotos] = useState<File[]>([]);
   const [sent, setSent] = useState(false);
 
   const estimate = useMemo(() => {
@@ -116,13 +118,14 @@ export function CostCalculator() {
     const garageTotal =
       garage === "single" ? 700 : garage === "double" ? 1200 : 0;
     const subtotal = roomTotal + garageTotal + 850;
-    const adjusted = multiStorey ? subtotal * 1.18 : subtotal;
+    const withStorey = multiStorey ? subtotal * 1.18 : subtotal;
+    const adjusted = paintType === "new" ? withStorey * 1.15 : withStorey;
 
     return {
       low: Math.round((adjusted * 0.9) / 50) * 50,
       high: Math.round((adjusted * 1.14) / 50) * 50,
     };
-  }, [garage, multiStorey, ranges]);
+  }, [garage, multiStorey, paintType, ranges]);
 
   function updateRange(key: RangeKey, value: number) {
     setRanges((current) => ({ ...current, [key]: value }));
@@ -130,8 +133,9 @@ export function CostCalculator() {
 
   async function handleContactSubmit(event: { preventDefault(): void; currentTarget: HTMLFormElement }) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") || "").trim();
+    const form  = event.currentTarget;
+    const data  = new FormData(form);
+    const name  = String(data.get("name")  || "").trim();
     const email = String(data.get("email") || "").trim();
     const phone = String(data.get("phone") || "").trim();
     const notes = String(data.get("description") || "").trim();
@@ -140,11 +144,30 @@ export function CostCalculator() {
       : `Estimate: $${estimate.low.toLocaleString()} - $${estimate.high.toLocaleString()}`;
 
     try {
-      await submitLead({ name, email, phone, description });
+      if (photos.length > 0) {
+        const base64Images = await Promise.all(
+          photos.map(
+            (file) =>
+              new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target!.result as string);
+                reader.readAsDataURL(file);
+              }),
+          ),
+        );
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        await fetch(`${BACKEND_URL}/api/lead/with-photos`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ name, email, phone, description, images: base64Images }),
+        });
+      } else {
+        await submitLead({ name, email, phone, description });
+      }
       setSent(true);
-      event.currentTarget.reset();
+      setPhotos([]);
+      form.reset();
     } catch {
-      // silent — user still sees the sent confirmation on next render
       setSent(true);
     }
   }
@@ -235,6 +258,17 @@ export function CostCalculator() {
                   />
 
                   <RadioGroup
+                    label="Type of Property"
+                    name="paint-type"
+                    options={[
+                      { label: "Re-paint", value: "repaint" },
+                      { label: "New Paint", value: "new" },
+                    ]}
+                    value={paintType}
+                    onChange={(value) => setPaintType(value as "repaint" | "new")}
+                  />
+
+                  <RadioGroup
                     label="Multi-storey House"
                     name="multi-storey"
                     options={[
@@ -306,6 +340,52 @@ export function CostCalculator() {
                   name="description"
                   placeholder="Project notes"
                 />
+
+                {/* Photo upload */}
+                <div>
+                  <label
+                    htmlFor="photo-upload"
+                    className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-black/20 bg-black/[0.03] px-4 py-5 text-center transition hover:border-[#b55228]/50 hover:bg-[#b55228]/5"
+                  >
+                    <svg className="h-7 w-7 text-[#b55228]" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <span className="text-sm font-bold text-[#171512]">Upload Property Photos</span>
+                    <span className="text-xs text-[#665d54]">JPG, PNG — up to 10 photos · included in your quote PDF</span>
+                  </label>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="sr-only"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []).slice(0, 10);
+                      setPhotos(files);
+                    }}
+                  />
+                  {photos.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {photos.map((file, i) => (
+                        <div key={i} className="relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className="h-16 w-16 rounded-xl object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setPhotos((prev) => prev.filter((_, j) => j !== i))}
+                            className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#171512] text-white text-xs"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <button className="button-dark" type="submit">
                   Submit Estimate Request
                 </button>
@@ -441,41 +521,34 @@ function RadioGroup({
   );
 }
 
+interface GoogleReview {
+  id: number;
+  name: string;
+  photo: string | null;
+  rating: number;
+  time: string;
+  text: string;
+}
+
 function ReviewsShowcase({ onEstimateClick }: { onEstimateClick: () => void }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const reviews = [
-    {
-      name: "Angelique Rita",
-      text: "Kesh and the team were sensational. Patient, professional, and transformed our home from difficult condition to a clean modern finish.",
-      image:
-        "/projects/project-51.jpg",
-    },
-    {
-      name: "Victoria Davy",
-      text: "Avine were excellent. Large lounge with high ceilings and tricky beams was handled on time with great communication throughout.",
-      image:
-        "/projects/project-52.jpg",
-    },
-    {
-      name: "Jamie Sweeney",
-      text: "Exterior weatherboards came out fantastic and the prep work made a huge difference. Professional crew from start to finish.",
-      image:
-        "/projects/project-53.jpg",
-    },
-    {
-      name: "Anne Morrison",
-      text: "Recent repaint job was neat, organised and looked outstanding. We would happily use Norm Painting again for future work.",
-      image:
-        "/projects/project-54.jpg",
-    },
-  ];
+  const [reviews, setReviews] = useState<GoogleReview[]>([]);
+
+  useEffect(() => {
+    fetch('/api/reviews')
+      .then((r) => r.json())
+      .then((data) => { if (data.reviews?.length) setReviews(data.reviews); })
+      .catch(() => {});
+  }, []);
 
   const cardsPerView = 3;
 
-  const visibleReviews = Array.from({ length: cardsPerView }, (_, offset) => {
-    const reviewIndex = (activeIndex + offset) % reviews.length;
-    return reviews[reviewIndex];
-  });
+  const visibleReviews = reviews.length > 0
+    ? Array.from({ length: cardsPerView }, (_, offset) => {
+        const reviewIndex = (activeIndex + offset) % reviews.length;
+        return reviews[reviewIndex];
+      })
+    : [];
 
   function goNext() {
     setActiveIndex((current) => (current + 1) % reviews.length);
@@ -508,24 +581,52 @@ function ReviewsShowcase({ onEstimateClick }: { onEstimateClick: () => void }) {
           </button>
 
           <div className="grid w-full gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {visibleReviews.length === 0 && Array.from({ length: cardsPerView }).map((_, i) => (
+              <div key={i} className="theme-surface animate-pulse rounded-[28px] p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-full bg-black/10" />
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-24 rounded bg-black/10" />
+                    <div className="h-2 w-16 rounded bg-black/10" />
+                  </div>
+                </div>
+                <div className="h-3 w-20 rounded bg-black/10" />
+                <div className="space-y-1.5">
+                  <div className="h-2.5 w-full rounded bg-black/10" />
+                  <div className="h-2.5 w-5/6 rounded bg-black/10" />
+                  <div className="h-2.5 w-4/6 rounded bg-black/10" />
+                </div>
+              </div>
+            ))}
             {visibleReviews.map((review) => (
               <article
                 className="theme-surface group rounded-[28px] p-4 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#b55228]/15"
                 key={`${review.name}-${activeIndex}`}
               >
-                <div className="relative h-48 overflow-hidden rounded-2xl sm:h-52">
-                  <Image
-                    fill
-                    alt={`${review.name} project`}
-                    className="object-cover transition duration-300 group-hover:scale-105"
-                    src={review.image}
-                  />
+                <div className="flex items-center gap-3">
+                  {review.photo ? (
+                    <Image
+                      src={review.photo}
+                      alt={review.name}
+                      width={44}
+                      height={44}
+                      className="rounded-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#b55228] text-sm font-black text-white">
+                      {review.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                    </span>
+                  )}
+                  <div>
+                    <p className="text-sm font-black">{review.name}</p>
+                    <p className="text-xs text-[#665d54]">{review.time}</p>
+                  </div>
                 </div>
-                <p className="mt-4 text-xl text-[#ff7a2b]">★★★★★</p>
+                <p className="mt-4 text-lg text-[#ff7a2b]">{'★'.repeat(review.rating)}</p>
                 <p className="mt-3 text-sm leading-7 text-[#4f473f]">
                   {review.text}
                 </p>
-                <p className="mt-5 text-sm font-black">{review.name}</p>
               </article>
             ))}
           </div>

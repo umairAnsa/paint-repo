@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { submitLead } from '../lib/submitLead';
 import Link from 'next/link';
 
@@ -28,8 +28,8 @@ const CONTACT_INFO = [
   },
   {
     label: 'Address',
-    value: 'Suite 3, 200 Malop St, Geelong VIC 3220',
-    href: 'https://maps.google.com/?q=200+Malop+St+Geelong+VIC+3220',
+    value: 'Melbourne VIC, Australia',
+    href: 'https://maps.google.com/?q=Melbourne+VIC+Australia',
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />

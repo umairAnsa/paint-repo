@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 
 const SERVICES = [
   {
@@ -8,7 +12,7 @@ const SERVICES = [
     description:
       'Fresh, flawless interiors with premium finishes. We prepare and paint walls, ceilings, trims, and feature walls using low-VOC paints safe for your family.',
     href: '/services#interior',
-    image: '/projects/project-05.jpg',
+    image: '/projects/project-29.jpg',
   },
   {
     id: 'exterior',
@@ -78,9 +82,9 @@ export default function ServicesSection() {
 
         {/* Cards Grid */}
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {SERVICES.map((service) => (
+          {SERVICES.map((service, index) => (
+            <AnimatedCard key={service.id} index={index}>
             <Link
-              key={service.id}
               href={service.href}
               className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#1e3a8a]/25 hover:shadow-xl hover:shadow-blue-900/8"
             >
@@ -111,6 +115,7 @@ export default function ServicesSection() {
                 </div>
               </div>
             </Link>
+            </AnimatedCard>
           ))}
         </div>
 
@@ -147,5 +152,21 @@ export default function ServicesSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+function AnimatedCard({ children, index }: { children: React.ReactNode; index: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '0px 0px -60px 0px' });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
   );
 }

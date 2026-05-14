@@ -94,6 +94,8 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
     const quote = await Quote.findById(req.params.id);
     if (!quote) { res.status(404).json({ error: 'Quote not found.' }); return; }
 
+    const sendToEmail = (req.body.overrideEmail as string | undefined)?.trim() || quote.email;
+
     const pdf    = await generateQuotePDF(quote);
     const errors: string[] = [];
     const price  = `$${quote.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
@@ -108,7 +110,7 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
 
         await transporter.sendMail({
           from:    `"Norm Painting" <${process.env.EMAIL}>`,
-          to:      quote.email,
+          to:      sendToEmail,
           replyTo: process.env.EMAIL,
           subject: `Your Quote from Norm Painting — ${quote.quoteNumber}`,
           html: `

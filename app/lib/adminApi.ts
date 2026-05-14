@@ -81,9 +81,11 @@ export async function createQuote(key: string, body: object) {
   return r.json();
 }
 
-export async function sendQuote(key: string, id: string) {
+export async function sendQuote(key: string, id: string, overrideEmail?: string) {
   const r = await fetch(`${BASE}/api/quote/${id}/send`, {
-    method: 'POST', headers: headers(key),
+    method: 'POST',
+    headers: headers(key),
+    body: JSON.stringify({ overrideEmail: overrideEmail || undefined }),
   });
   return r.json();
 }

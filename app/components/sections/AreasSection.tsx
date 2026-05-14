@@ -26,18 +26,6 @@ export default function AreasSection() {
             </p>
             <div className="mt-8 flex flex-col gap-4">
               <div className="flex items-start gap-3 rounded-xl border border-gray-100 p-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1e3a8a]/8 text-[#1e3a8a]">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </span>
-                <div>
-                  <p className="text-sm font-black text-[#111827]">Geelong Region</p>
-                  <p className="text-xs text-gray-500">All Geelong suburbs, Surf Coast, and Bellarine Peninsula</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 rounded-xl border border-gray-100 p-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f97316]/8 text-[#f97316]">
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -47,6 +35,18 @@ export default function AreasSection() {
                 <div>
                   <p className="text-sm font-black text-[#111827]">Melbourne Inner West & CBD</p>
                   <p className="text-xs text-gray-500">Yarraville, Williamstown, Docklands, Newport, Seddon and more</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-gray-100 p-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1e3a8a]/8 text-[#1e3a8a]">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-sm font-black text-[#111827]">Geelong Region</p>
+                  <p className="text-xs text-gray-500">All Geelong suburbs, Surf Coast, and Bellarine Peninsula</p>
                 </div>
               </div>
             </div>

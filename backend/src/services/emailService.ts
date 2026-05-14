@@ -3,6 +3,7 @@ import { logger } from '../lib/logger';
 import type { LeadInput } from '../validation/leadSchema';
 
 function buildEmailHtml(data: LeadInput): string {
+  const logoSrc = 'https://new.normpainting.com/logo.png';
   const phoneRow = data.phone
     ? `<a href="tel:${data.phone}" style="color:#1e3a8a;text-decoration:none;font-weight:600;">${data.phone}</a>`
     : '<span style="color:#9ca3af;">Not provided</span>';
@@ -26,12 +27,7 @@ function buildEmailHtml(data: LeadInput): string {
 
           <tr>
             <td style="background:#ffffff;border-radius:16px 16px 0 0;padding:32px 40px 24px;text-align:center;border-bottom:4px solid #f97316;">
-              <img
-                src="${process.env.BACKEND_URL || 'http://localhost:5000'}/static/logo.png"
-                alt="Norm Painting"
-                width="150"
-                style="height:auto;display:block;margin:0 auto;"
-              />
+              <img src="${logoSrc}" alt="Norm Painting" width="150" style="height:auto;display:block;margin:0 auto;" />
               <p style="margin:12px 0 0;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:0.14em;font-weight:700;">New Lead Notification</p>
             </td>
           </tr>
@@ -100,6 +96,38 @@ function buildEmailHtml(data: LeadInput): string {
   </table>
 </body>
 </html>`;
+}
+
+export async function sendLeadEmailWithPhotos(data: LeadInput, pdfBuffer: Buffer): Promise<void> {
+  logger.info('[Email] Sending email with photos...', { to: process.env.EMAIL_TO });
+
+  if (!process.env.RESEND_API_KEY) {
+    logger.warn('[Email] RESEND_API_KEY not set — skipping.');
+    return;
+  }
+
+  const resend     = new Resend(process.env.RESEND_API_KEY);
+  const toAddress  = process.env.EMAIL_TO || 'info@normpainting.com';
+
+  try {
+    const { data: result, error } = await resend.emails.send({
+      from:        'Norm Painting Website <onboarding@resend.dev>',
+      to:          [toAddress],
+      replyTo:     data.email,
+      subject:     `New Lead + Photos: ${data.name} — Norm Painting`,
+      html:        buildEmailHtml(data),
+      attachments: [{
+        filename: `property-photos-${data.name.replace(/\s+/g, '-').toLowerCase()}.pdf`,
+        content:  pdfBuffer.toString('base64'),
+      }],
+    });
+
+    if (error) throw new Error(error.message);
+    logger.info('[Email] ✅ Sent with photos.', { id: result?.id, to: toAddress });
+  } catch (err) {
+    logger.error('[Email] ❌ Exception.', err);
+    throw err;
+  }
 }
 
 export async function sendLeadEmail(data: LeadInput): Promise<void> {

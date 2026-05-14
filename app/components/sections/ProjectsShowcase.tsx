@@ -1,5 +1,18 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+
+const DIRECTIONS = [
+  { x: -60, y: 0 },   // left
+  { x: 0,  y: -60 },  // top
+  { x: 60,  y: 0 },   // right
+  { x: 0,  y: 60 },   // bottom
+  { x: -60, y: 0 },   // left
+  { x: 60,  y: 0 },   // right
+];
 
 const PROJECTS = [
   {
@@ -74,11 +87,11 @@ export default function ProjectsShowcase() {
 
         {/* Grid */}
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {PROJECTS.map((project) => (
+          {PROJECTS.map((project, index) => (
+            <AnimatedCard key={project.id} index={index}>
             <Link
-              key={project.id}
               href="/projects"
-              className="group relative overflow-hidden rounded-2xl bg-gray-100"
+              className="group relative overflow-hidden rounded-2xl bg-gray-100 block"
             >
               <div className="relative h-64 overflow-hidden sm:h-72">
                 <Image
@@ -114,9 +127,27 @@ export default function ProjectsShowcase() {
                 </span>
               </div>
             </Link>
+            </AnimatedCard>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function AnimatedCard({ children, index }: { children: React.ReactNode; index: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '0px 0px -60px 0px' });
+  const dir = DIRECTIONS[index % DIRECTIONS.length];
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: dir.x, y: dir.y }}
+      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ duration: 0.55, delay: index * 0.08, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
   );
 }
