@@ -232,14 +232,14 @@ export function generateInvoicePDF(invoice: IInvoice): Promise<Buffer> {
 
 export function generatePhotosPdf(_data: LeadInput, imageBuffers: Buffer[]): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const MARGIN = 30;
-    const GAP    = 10;
-    const COLS   = 2;
-    const W      = 595.28;
-    const H      = 841.89;
-    const cellW  = (W - MARGIN * 2 - GAP) / COLS;            // ~262px
-    const cellH  = Math.round(cellW * 0.75);                  // ~197px (4:3)
-    const rowsPerPage = Math.floor((H - MARGIN * 2 + GAP) / (cellH + GAP)); // 3 rows
+    const MARGIN      = 30;
+    const GAP         = 16;
+    const W           = 595.28;
+    const H           = 841.89;
+    const cellW       = W - MARGIN * 2;                          // full width ~535px
+    const cellH       = Math.round((H - MARGIN * 2 - GAP) / 2); // 2 per page ~388px
+    const COLS        = 1;
+    const rowsPerPage = 2;
 
     const doc    = new PDFDocument({ margin: 0, size: 'A4' });
     const chunks: Buffer[] = [];
