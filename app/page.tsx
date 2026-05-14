@@ -9,8 +9,7 @@ import AreasSection from './components/sections/AreasSection';
 // Split heavy animated sections into separate JS chunks loaded after first paint
 const ServicesSection    = dynamic(() => import('./components/sections/ServicesSection'));
 const ProjectsShowcase   = dynamic(() => import('./components/sections/ProjectsShowcase'));
-// ssr:false — defers API fetch + framer-motion carousel until after hydration
-const TestimonialsSection = dynamic(() => import('./components/sections/TestimonialsSection'), { ssr: false });
+const TestimonialsSection = dynamic(() => import('./components/sections/TestimonialsSection'));
 
 export const metadata: Metadata = {
   title: 'Norm Painting | Professional Painters Geelong & Melbourne',
