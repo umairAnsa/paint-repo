@@ -85,7 +85,7 @@ function buildEmailHtml(data: LeadInput): string {
 
           <tr>
             <td style="background:#f8fafc;border-top:1px solid #e5e7eb;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
-              <p style="margin:0;font-size:12px;color:#9ca3af;">Norm Painting · Geelong &amp; Melbourne VIC · ABN 52 704 401 415</p>
+              <p style="margin:0;font-size:12px;color:#9ca3af;">Norm Painting · Melbourne VIC, Australia · ABN 84 673 345 054</p>
               <p style="margin:6px 0 0;font-size:11px;color:#d1d5db;">Automated notification from your website contact form.</p>
             </td>
           </tr>
