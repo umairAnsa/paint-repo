@@ -3,7 +3,7 @@ import Quote from '../models/Quote';
 import Lead from '../models/Lead';
 import { generateQuotePDF } from '../services/quotePdfService';
 import { logger } from '../lib/logger';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import twilio from 'twilio';
 
 async function nextQuoteNumber(): Promise<string> {
@@ -100,28 +100,27 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
     const errors: string[] = [];
     const price  = `$${quote.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
 
-    // ── Email ─────────────────────────────────────────────────────────────────
-    if (process.env.EMAIL && process.env.EMAIL_PASS) {
+    // ── Email via Resend ──────────────────────────────────────────────────────
+    if (process.env.RESEND_API_KEY) {
       try {
-        const transporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com', port: 465, secure: true,
-          auth: { user: process.env.EMAIL, pass: process.env.EMAIL_PASS },
-        });
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const from   = process.env.RESEND_FROM || 'Norm Painting <onboarding@resend.dev>';
 
-        await transporter.sendMail({
-          from:    `"Norm Painting" <${process.env.EMAIL}>`,
-          to:      sendToEmail,
-          replyTo: process.env.EMAIL,
-          subject: `Your Quote from Norm Painting — ${quote.quoteNumber}`,
+        const { error } = await resend.emails.send({
+          from,
+          to:          [sendToEmail],
+          replyTo:     process.env.EMAIL_TO || 'info@normpainting.com',
+          subject:     `Your Quote from Norm Painting — ${quote.quoteNumber}`,
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
               <div style="background:#0c1f3d;padding:28px 32px;border-bottom:4px solid #f97316;">
+                <img src="https://new.normpainting.com/logo.png" alt="Norm Painting" height="48" style="display:block;margin-bottom:12px;" />
                 <h2 style="color:#ffffff;margin:0;font-size:20px;">Your Quote is Ready!</h2>
               </div>
               <div style="padding:32px;background:#ffffff;border:1px solid #e5e7eb;">
                 <p style="color:#374151;">Hi <strong>${quote.name}</strong>,</p>
                 <p style="color:#374151;">Thank you for your interest. Please find your quote attached.</p>
-                <table style="width:100%;border-collapse:collapse;margin:20px 0;border-radius:8px;overflow:hidden;">
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
                   <tr style="background:#f8fafc;">
                     <td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;">Quote Number</td>
                     <td style="padding:12px 16px;font-size:14px;color:#111827;font-weight:600;">${quote.quoteNumber}</td>
@@ -141,18 +140,18 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
                   ${quote.description ? `<tr style="background:#f8fafc;"><td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">Notes</td><td style="padding:12px 16px;font-size:14px;color:#374151;border-top:1px solid #e5e7eb;">${quote.description}</td></tr>` : ''}
                 </table>
                 <p style="color:#374151;">To accept this quote, simply reply to this email or call us on <strong>0406 342 731</strong>.</p>
-                <a href="tel:0406342731" style="display:inline-block;background:#f97316;color:#ffffff;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:13px;margin-top:8px;">
-                  Call to Accept
-                </a>
+                <a href="tel:0406342731" style="display:inline-block;background:#f97316;color:#ffffff;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:13px;margin-top:8px;">Call to Accept</a>
               </div>
               <div style="padding:16px 32px;background:#f8fafc;border:1px solid #e5e7eb;border-top:none;text-align:center;">
-                <p style="margin:0;font-size:12px;color:#9ca3af;">Norm Painting · Geelong & Melbourne VIC · ABN 52 704 401 415</p>
+                <p style="margin:0;font-size:12px;color:#9ca3af;">Norm Painting · Melbourne VIC, Australia · ABN 84 673 345 054</p>
               </div>
             </div>
           `,
-          attachments: [{ filename: `${quote.quoteNumber}.pdf`, content: pdf }],
+          attachments: [{ filename: `${quote.quoteNumber}.pdf`, content: pdf.toString('base64') }],
         });
-        logger.info('[Quote] Email sent.', { to: quote.email });
+
+        if (error) throw new Error(error.message);
+        logger.info('[Quote] Email sent via Resend.', { to: sendToEmail });
       } catch (err) {
         logger.error('[Quote] Email failed.', err);
         errors.push('Email failed.');

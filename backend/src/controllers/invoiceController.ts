@@ -3,7 +3,7 @@ import Invoice from '../models/Invoice';
 import Lead from '../models/Lead';
 import { generateInvoicePDF } from '../services/pdfService';
 import { logger } from '../lib/logger';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import twilio from 'twilio';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -101,29 +101,58 @@ export async function sendInvoice(req: Request, res: Response): Promise<void> {
     const pdf = await generateInvoicePDF(invoice);
     const errors: string[] = [];
 
-    // Email
-    if (process.env.EMAIL && process.env.EMAIL_PASS) {
+    // Email via Resend
+    if (process.env.RESEND_API_KEY) {
       try {
-        const transporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com', port: 465, secure: true,
-          auth: { user: process.env.EMAIL, pass: process.env.EMAIL_PASS },
-        });
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const from   = process.env.RESEND_FROM || 'Norm Painting <onboarding@resend.dev>';
+        const price  = `$${invoice.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
 
-        await transporter.sendMail({
-          from:    `"Norm Painting" <${process.env.EMAIL}>`,
-          to:      invoice.email,
-          replyTo: process.env.EMAIL,
+        const { error } = await resend.emails.send({
+          from,
+          to:      [invoice.email],
+          replyTo: process.env.EMAIL_TO || 'info@normpainting.com',
           subject: `Invoice ${invoice.invoiceNumber} — Norm Painting`,
           html: `
-            <p>Hi ${invoice.name},</p>
-            <p>Please find attached your invoice <strong>${invoice.invoiceNumber}</strong> for <strong>${invoice.service}</strong>.</p>
-            <p>Amount due: <strong>$${invoice.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}</strong></p>
-            <p>If you have any questions, reply to this email or call <strong>0406 342 731</strong>.</p>
-            <p>Thank you for choosing Norm Painting!</p>
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+              <div style="background:#0c1f3d;padding:28px 32px;border-bottom:4px solid #f97316;">
+                <img src="https://new.normpainting.com/logo.png" alt="Norm Painting" height="48" style="display:block;margin-bottom:12px;" />
+                <h2 style="color:#ffffff;margin:0;font-size:20px;">Invoice from Norm Painting</h2>
+              </div>
+              <div style="padding:32px;background:#ffffff;border:1px solid #e5e7eb;">
+                <p style="color:#374151;">Hi <strong>${invoice.name}</strong>,</p>
+                <p style="color:#374151;">Please find your invoice attached. Here's a summary:</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                  <tr style="background:#f8fafc;">
+                    <td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;">Invoice Number</td>
+                    <td style="padding:12px 16px;font-size:14px;color:#111827;font-weight:600;">${invoice.invoiceNumber}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">Service</td>
+                    <td style="padding:12px 16px;font-size:14px;color:#111827;border-top:1px solid #e5e7eb;">${invoice.service}</td>
+                  </tr>
+                  <tr style="background:#f8fafc;">
+                    <td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">Amount Due</td>
+                    <td style="padding:12px 16px;font-size:16px;color:#f97316;font-weight:800;border-top:1px solid #e5e7eb;">${price}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">Due Date</td>
+                    <td style="padding:12px 16px;font-size:14px;color:#111827;border-top:1px solid #e5e7eb;">${new Date(invoice.dueDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'long', year: 'numeric' })}</td>
+                  </tr>
+                </table>
+                <p style="color:#374151;">If you have any questions, reply to this email or call <strong>0406 342 731</strong>.</p>
+                <a href="tel:0406342731" style="display:inline-block;background:#f97316;color:#ffffff;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:100px;font-size:13px;margin-top:8px;">Call Us</a>
+              </div>
+              <div style="padding:16px 32px;background:#f8fafc;border:1px solid #e5e7eb;border-top:none;text-align:center;">
+                <p style="margin:0;font-size:12px;color:#9ca3af;">Norm Painting · Melbourne VIC, Australia · ABN 84 673 345 054</p>
+              </div>
+            </div>
           `,
-          attachments: [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdf }],
+          attachments: [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdf.toString('base64') }],
         });
-        logger.info('[Invoice] Email sent.', { to: invoice.email });
+
+        if (error) throw new Error(error.message);
+        logger.info('[Invoice] Email sent via Resend.', { to: invoice.email });
       } catch (err) {
         logger.error('[Invoice] Email failed.', err);
         errors.push('Email failed.');
