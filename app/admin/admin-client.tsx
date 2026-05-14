@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
+
+const PAGE_SIZE = 10;
 import * as api from '../lib/adminApi';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -61,6 +63,38 @@ function fmt(d: string) {
 }
 function fmtPrice(p: number) {
   return `$${p.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
+}
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+
+function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (totalPages <= 1) return null;
+  const start = (page - 1) * PAGE_SIZE + 1;
+  const end   = Math.min(page * PAGE_SIZE, total);
+  return (
+    <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3">
+      <span className="text-xs text-gray-400">{start}–{end} of {total}</span>
+      <div className="flex gap-1">
+        <button disabled={page === 1} onClick={() => onChange(page - 1)}
+          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-50 disabled:opacity-40">
+          ← Prev
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+          <button key={p} onClick={() => onChange(p)}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition ${
+              p === page ? 'border-[#0c1f3d] bg-[#0c1f3d] text-white' : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+            }`}>
+            {p}
+          </button>
+        ))}
+        <button disabled={page === totalPages} onClick={() => onChange(page + 1)}
+          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-50 disabled:opacity-40">
+          Next →
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ── Login ─────────────────────────────────────────────────────────────────────
@@ -351,6 +385,12 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
   const [loading,  setLoading]  = useState(false);
   const [toast,    setToast]    = useState('');
 
+  // pagination
+  const [qPage,     setQPage]     = useState(1);
+  const [qLeadPage, setQLeadPage] = useState(1);
+  const [iPage,     setIPage]     = useState(1);
+  const [iLeadPage, setILeadPage] = useState(1);
+
   // quote modals
   const [createModal, setCreateModal] = useState<Lead | null | undefined>(undefined);
   const [sendModal,   setSendModal]   = useState<Quote | null>(null);
@@ -406,6 +446,12 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
     await api.deleteQuote(adminKey, q._id);
     loadData();
   }
+
+  // ── Paginated slices ───────────────────────────────────────────────────────
+  const quotesPage  = quotes.slice((qPage - 1) * PAGE_SIZE, qPage * PAGE_SIZE);
+  const qLeadsPage  = qLeads.slice((qLeadPage - 1) * PAGE_SIZE, qLeadPage * PAGE_SIZE);
+  const invPage     = invoices.slice((iPage - 1) * PAGE_SIZE, iPage * PAGE_SIZE);
+  const iLeadsPage  = iLeads.slice((iLeadPage - 1) * PAGE_SIZE, iLeadPage * PAGE_SIZE);
 
   // ── Stats ──────────────────────────────────────────────────────────────────
   const stats = [
@@ -521,7 +567,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {quotes.map(q => (
+                    {quotesPage.map(q => (
                       <tr key={q._id} className="hover:bg-gray-50/50">
                         <td className="px-4 py-3 font-bold text-[#0c1f3d]">{q.quoteNumber}</td>
                         <td className="px-4 py-3">
@@ -570,6 +616,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                   </tbody>
                 </table>
               )}
+              <Pagination page={qPage} total={quotes.length} onChange={p => setQPage(p)} />
             </div>
 
             {/* Quote Leads table */}
@@ -589,7 +636,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {qLeads.map(lead => (
+                    {qLeadsPage.map(lead => (
                       <tr key={lead._id} className="hover:bg-gray-50/50">
                         <td className="px-4 py-3 font-semibold text-[#111827]">{lead.name}</td>
                         <td className="px-4 py-3 text-gray-500">{lead.email}</td>
@@ -607,6 +654,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                   </tbody>
                 </table>
               )}
+              <Pagination page={qLeadPage} total={qLeads.length} onChange={p => setQLeadPage(p)} />
             </div>
           </div>
         ) : tab === 'invoices' ? (
@@ -629,7 +677,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {invoices.map(inv => (
+                    {invPage.map(inv => (
                       <tr key={inv._id} className="hover:bg-gray-50/50">
                         <td className="px-4 py-3 font-bold text-[#0c1f3d]">{inv.invoiceNumber}</td>
                         <td className="px-4 py-3">
@@ -678,6 +726,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                   </tbody>
                 </table>
               )}
+              <Pagination page={iPage} total={invoices.length} onChange={p => setIPage(p)} />
             </div>
 
             {/* Invoice Leads table */}
@@ -697,7 +746,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {iLeads.map(lead => (
+                    {iLeadsPage.map(lead => (
                       <tr key={lead._id} className="hover:bg-gray-50/50">
                         <td className="px-4 py-3 font-semibold text-[#111827]">{lead.name}</td>
                         <td className="px-4 py-3 text-gray-500">{lead.email}</td>
@@ -715,6 +764,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                   </tbody>
                 </table>
               )}
+              <Pagination page={iLeadPage} total={iLeads.length} onChange={p => setILeadPage(p)} />
             </div>
           </div>
         ) : (
