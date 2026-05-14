@@ -90,6 +90,14 @@ export async function createLeadWithPhotos(req: Request, res: Response): Promise
     }
 
     sendWhatsAppNotification(data).catch((err) => logError('[Lead] WhatsApp failed.', err));
+    sendTelegramNotification(
+      `🎨 <b>New Lead + Photos — Norm Painting</b>\n\n` +
+      `👤 <b>Name:</b> ${data.name}\n` +
+      `📧 <b>Email:</b> ${data.email}\n` +
+      `📞 <b>Phone:</b> ${data.phone || '—'}\n` +
+      `💬 <b>Message:</b> ${data.description}\n` +
+      `📸 <b>Photos:</b> ${imageBuffers.length} image(s) attached`
+    ).catch((err) => logError('[Lead] Telegram failed.', err));
 
     res.status(201).json({
       success: true,
