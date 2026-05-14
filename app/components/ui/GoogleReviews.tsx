@@ -228,7 +228,7 @@ export default function GoogleReviews() {
 
               {data && !loading && (
                 <div className="flex flex-col gap-4">
-                  {data.reviews.map((review, i) => (
+                  {data.reviews.filter(r => r.rating >= 4).map((review, i) => (
                     <motion.div
                       key={review.id}
                       initial={{ opacity: 0, y: 16 }}

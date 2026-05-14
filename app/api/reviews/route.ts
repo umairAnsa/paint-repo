@@ -60,14 +60,16 @@ export async function GET() {
     return NextResponse.json({
       rating:       place.rating,
       totalReviews: place.user_ratings_total,
-      reviews: (place.reviews ?? []).map((r, i) => ({
-        id:     i + 1,
-        name:   r.author_name,
-        photo:  r.profile_photo_url ?? null,
-        rating: r.rating,
-        time:   r.relative_time_description,
-        text:   r.text,
-      })),
+      reviews: (place.reviews ?? [])
+        .filter(r => r.rating >= 4)
+        .map((r, i) => ({
+          id:     i + 1,
+          name:   r.author_name,
+          photo:  r.profile_photo_url ?? null,
+          rating: r.rating,
+          time:   r.relative_time_description,
+          text:   r.text,
+        })),
     });
   } catch {
     return NextResponse.json({ error: 'Failed to fetch reviews.' }, { status: 500 });
