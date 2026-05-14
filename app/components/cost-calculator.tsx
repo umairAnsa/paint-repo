@@ -3,7 +3,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
 import { submitLead } from "../lib/submitLead";
 
 type RangeKey =
@@ -183,8 +182,7 @@ export function CostCalculator() {
       transition={{ duration: 0.65, ease: "easeOut" }}
       className="min-h-screen bg-[#f7f4ee] text-[#171512]"
     >
-      <EstimateHeader />
-      <section className="theme-glow relative isolate overflow-hidden px-5 py-20 text-white sm:px-8">
+      <section className="theme-glow relative isolate overflow-hidden px-5 pb-20 pt-36 text-white sm:px-8 sm:pt-44">
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(23,21,18,0.96),rgba(181,82,40,0.65),rgba(28,68,62,0.88)),repeating-linear-gradient(90deg,rgba(255,255,255,0.08)_0_2px,transparent_2px_86px)]" />
         <div className="mx-auto max-w-7xl">
           <h1 className="text-5xl font-black tracking-tight sm:text-7xl">
@@ -425,52 +423,6 @@ export function CostCalculator() {
       <ReviewsShowcase onEstimateClick={() => setActiveTab("estimate")} />
       <GalleryTeaser onEstimateClick={() => setActiveTab("estimate")} />
     </motion.main>
-  );
-}
-
-function EstimateHeader() {
-  return (
-    <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f4ee]/90 px-5 py-4 text-[#171512] backdrop-blur-xl sm:px-8">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-        <Link className="text-xl font-black tracking-tight" href="/">
-          Norm Painting
-        </Link>
-        <div className="hidden items-center gap-7 text-sm font-semibold text-[#5f554c] md:flex">
-          <Link className="transition hover:text-[#b55228]" href="/">
-            Home
-          </Link>
-          <Link className="transition hover:text-[#b55228]" href="/services">
-            Services
-          </Link>
-          <Link className="transition hover:text-[#b55228]" href="/about">
-            About
-          </Link>
-          <Link className="transition hover:text-[#b55228]" href="/#gallery">
-            Gallery
-          </Link>
-          <Link className="transition hover:text-[#b55228]" href="/#contact">
-            Contact Us
-          </Link>
-          <Link className="transition hover:text-[#b55228]" href="/#areas">
-            More v
-          </Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            className="hidden rounded-full border border-black/10 px-5 py-2.5 text-sm font-bold transition hover:border-[#b55228] hover:text-[#b55228] sm:inline-flex"
-            href="/estimate"
-          >
-            Calculate Estimate
-          </a>
-          <a
-            className="rounded-full bg-[#171512] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#b55228]"
-            href="tel:0406342731"
-          >
-            0406 342 731
-          </a>
-        </div>
-      </nav>
-    </header>
   );
 }
 
