@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { Poppins, Inter } from 'next/font/google';
+import dynamic from 'next/dynamic';
 import './globals.css';
 import Navbar from './components/ui/Navbar';
 import Footer from './components/ui/Footer';
-import GoogleReviews from './components/ui/GoogleReviews';
-import FloatingContactButton from './components/ui/FloatingContactButton';
+
+// Defer interactive overlays — neither needs SSR, both use framer-motion
+const GoogleReviews       = dynamic(() => import('./components/ui/GoogleReviews'),       { ssr: false });
+const FloatingContactButton = dynamic(() => import('./components/ui/FloatingContactButton'), { ssr: false });
 
 const poppins = Poppins({
   variable: '--font-poppins',

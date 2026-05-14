@@ -106,6 +106,7 @@ export default function AboutPreview() {
               alt="Beautiful house exterior after painting"
               width={400}
               height={300}
+              loading="lazy"
               className="h-full w-full object-cover"
             />
           </div>
@@ -117,6 +118,7 @@ export default function AboutPreview() {
               alt="Premium interior painting result"
               width={800}
               height={380}
+              loading="lazy"
               className="h-60 w-full object-cover"
             />
             {/* Overlay badge */}

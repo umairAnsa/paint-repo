@@ -178,7 +178,7 @@ export default function HeroSlider() {
       aria-label="Hero image slider"
     >
       {/* Background Images */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={slide.id}
           initial={{ opacity: 0, scale: 1.04 }}
@@ -217,7 +217,7 @@ export default function HeroSlider() {
         <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-2">
 
           {/* Left — Slide text */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={slide.id}
               initial={{ opacity: 0, y: 40 }}

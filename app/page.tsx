@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import HeroSlider from './components/sections/HeroSlider';
 import TrustBanner from './components/sections/TrustBanner';
 import AboutPreview from './components/sections/AboutPreview';
-import ServicesSection from './components/sections/ServicesSection';
-import ProjectsShowcase from './components/sections/ProjectsShowcase';
-import TestimonialsSection from './components/sections/TestimonialsSection';
 import CTASection from './components/sections/CTASection';
 import AreasSection from './components/sections/AreasSection';
+
+// Split heavy animated sections into separate JS chunks loaded after first paint
+const ServicesSection    = dynamic(() => import('./components/sections/ServicesSection'));
+const ProjectsShowcase   = dynamic(() => import('./components/sections/ProjectsShowcase'));
+// ssr:false — defers API fetch + framer-motion carousel until after hydration
+const TestimonialsSection = dynamic(() => import('./components/sections/TestimonialsSection'), { ssr: false });
 
 export const metadata: Metadata = {
   title: 'Norm Painting | Professional Painters Geelong & Melbourne',
