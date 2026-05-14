@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import { submitLead } from '../../lib/submitLead';
 
 const SLIDES = [
@@ -68,11 +67,7 @@ function QuoteForm() {
 
   if (status === 'success') {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center gap-4 py-10 text-center"
-      >
+      <div className="animate-fade-up flex flex-col items-center justify-center gap-4 py-10 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f97316]">
           <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -80,7 +75,7 @@ function QuoteForm() {
         </div>
         <p className="text-lg font-black text-white">Request Received!</p>
         <p className="text-sm text-white/70">We&apos;ll call you back within 2 hours.</p>
-      </motion.div>
+      </div>
     );
   }
 
@@ -130,12 +125,10 @@ function QuoteForm() {
         <p className="text-xs text-red-400">Something went wrong. Please try again.</p>
       )}
 
-      <motion.button
+      <button
         type="submit"
         disabled={status === 'loading'}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="mt-1 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#f97316] text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition hover:bg-[#ea6c07] disabled:opacity-70"
+        className="mt-1 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#f97316] text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition hover:bg-[#ea6c07] active:scale-[0.98] disabled:opacity-70"
       >
         {status === 'loading' ? (
           <span className="flex items-center gap-2">
@@ -148,7 +141,7 @@ function QuoteForm() {
         ) : (
           'Get Free Quote →'
         )}
-      </motion.button>
+      </button>
 
       <p className="text-center text-[11px] text-white/35">No obligation · Free written quote · Reply within 2 hrs</p>
     </form>
@@ -168,8 +161,6 @@ export default function HeroSlider() {
     return () => clearInterval(id);
   }, [next, paused]);
 
-  const slide = SLIDES[current];
-
   return (
     <section
       className="relative h-screen min-h-[620px] max-h-[960px] overflow-hidden"
@@ -177,26 +168,25 @@ export default function HeroSlider() {
       onMouseLeave={() => setPaused(false)}
       aria-label="Hero image slider"
     >
-      {/* Background Images */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
+      {/* Background Images — CSS crossfade, all in DOM */}
+      {SLIDES.map((slide, i) => (
+        <div
           key={slide.id}
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease: 'easeInOut' }}
-          className="absolute inset-0"
+          className="absolute inset-0 transition-opacity duration-[900ms] ease-in-out"
+          style={{ opacity: i === current ? 1 : 0 }}
+          aria-hidden={i !== current}
         >
           <Image
             src={slide.image}
             alt={slide.title}
             fill
-            priority
+            priority={i === 0}
+            loading={i === 0 ? 'eager' : 'lazy'}
             className="object-cover"
             sizes="100vw"
           />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      ))}
 
       {/* Overlays */}
       <div className="absolute inset-0 bg-linear-to-r from-[#061524]/92 via-[#0c1f3d]/70 to-[#0c1f3d]/40" />
@@ -216,57 +206,43 @@ export default function HeroSlider() {
       <div className="relative flex h-full items-center px-5 sm:px-8">
         <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-2">
 
-          {/* Left — Slide text */}
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={slide.id}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.75, ease: 'easeOut', delay: 0.15 }}
-            >
-              <span className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />
-                {slide.badge}
-              </span>
+          {/* Left — Slide text — key change restarts CSS animation */}
+          <div key={current} className="animate-fade-up">
+            <span className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />
+              {SLIDES[current].badge}
+            </span>
 
-              <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-5xl xl:text-6xl">
-                {slide.title}
-              </h1>
+            <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-5xl xl:text-6xl">
+              {SLIDES[current].title}
+            </h1>
 
-              <p className="mt-5 max-w-lg text-base leading-7 text-white/70 sm:text-lg">
-                {slide.subtitle}
-              </p>
+            <p className="mt-5 max-w-lg text-base leading-7 text-white/70 sm:text-lg">
+              {SLIDES[current].subtitle}
+            </p>
 
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link
-                  href="/estimate"
-                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-xl shadow-orange-500/30 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
-                >
-                  Get Free Quote
-                </Link>
-                <Link
-                  href="/projects"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/30 px-7 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/55 hover:bg-white/10"
-                >
-                  View Our Work
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/estimate"
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-xl shadow-orange-500/30 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
+              >
+                Get Free Quote
+              </Link>
+              <Link
+                href="/projects"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/30 px-7 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/55 hover:bg-white/10"
+              >
+                View Our Work
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
 
           {/* Right — Quote Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
-            className="hidden lg:block"
-          >
+          <div className="hidden lg:block">
             <div className="rounded-3xl border border-white/15 bg-white/10 p-7 shadow-2xl backdrop-blur-md">
-              {/* Form header */}
               <div className="mb-5 flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f97316]">
                   <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -278,10 +254,9 @@ export default function HeroSlider() {
                   <p className="text-xs text-white/50">We reply within 2 hours</p>
                 </div>
               </div>
-
               <QuoteForm />
             </div>
-          </motion.div>
+          </div>
 
         </div>
       </div>

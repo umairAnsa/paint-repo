@@ -69,11 +69,6 @@ export default function FloatingContactButton() {
         className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#f97316] text-white shadow-xl shadow-orange-500/40 transition hover:bg-[#ea6c07] hover:shadow-orange-500/55"
         aria-label={expanded ? 'Close contact options' : 'Contact us'}
       >
-        {/* Pulse ring */}
-        {!expanded && (
-          <span className="absolute inset-0 animate-ping rounded-full bg-[#f97316]/40" />
-        )}
-
         <motion.div
           animate={{ rotate: expanded ? 45 : 0 }}
           transition={{ duration: 0.25, ease: 'easeInOut' }}
