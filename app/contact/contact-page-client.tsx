@@ -17,8 +17,8 @@ const CONTACT_INFO = [
   },
   {
     label: 'Email',
-    value: 'info@normpainting.com.au',
-    href: 'mailto:info@normpainting.com.au',
+    value: 'info@normpainting.com',
+    href: 'mailto:info@normpainting.com',
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
