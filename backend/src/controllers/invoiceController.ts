@@ -4,7 +4,6 @@ import Lead from '../models/Lead';
 import { generateInvoicePDF } from '../services/pdfService';
 import { logger } from '../lib/logger';
 import { Resend } from 'resend';
-import twilio from 'twilio';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -156,23 +155,6 @@ export async function sendInvoice(req: Request, res: Response): Promise<void> {
       } catch (err) {
         logger.error('[Invoice] Email failed.', err);
         errors.push('Email failed.');
-      }
-    }
-
-    // WhatsApp
-    if (process.env.TWILIO_SID && process.env.TWILIO_AUTH && process.env.TWILIO_WHATSAPP_FROM && invoice.phone) {
-      try {
-        const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
-        const to = invoice.phone.startsWith('+') ? invoice.phone : `+${invoice.phone}`;
-        await client.messages.create({
-          from: process.env.TWILIO_WHATSAPP_FROM,
-          to:   `whatsapp:${to}`,
-          body: `Hi ${invoice.name}! 🎨\n\nYour invoice *${invoice.invoiceNumber}* for *${invoice.service}* has been sent.\n\nAmount due: *$${invoice.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}*\n\nThank you for choosing Norm Painting! — 0406 342 731`,
-        });
-        logger.info('[Invoice] WhatsApp sent.', { to });
-      } catch (err) {
-        logger.error('[Invoice] WhatsApp failed.', err);
-        errors.push('WhatsApp failed.');
       }
     }
 

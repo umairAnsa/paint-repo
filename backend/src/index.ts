@@ -9,7 +9,6 @@ import leadRouter    from './routes/lead';
 import invoiceRouter from './routes/invoice';
 import quoteRouter   from './routes/quote';
 import { logger } from './lib/logger';
-import { logTwilioConfig } from './services/twilioService';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -53,7 +52,6 @@ app.use((_req, res) => {
 async function start() {
   try {
     await connectDB();
-    logTwilioConfig(); // prints env var status on every startup
     app.listen(PORT, () => {
       logger.info(`Norm Painting backend running on http://localhost:${PORT}`);
     });

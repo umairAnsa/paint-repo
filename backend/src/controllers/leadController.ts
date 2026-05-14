@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { leadSchema } from '../validation/leadSchema';
 import { sendLeadEmail, sendLeadEmailWithPhotos } from '../services/emailService';
 import { generatePhotosPdf } from '../services/pdfService';
-import { sendWhatsAppNotification } from '../services/twilioService';
 import { sendTelegramNotification } from '../services/telegramService';
 import Lead from '../models/Lead';
 import { logger } from '../lib/logger';
@@ -33,7 +32,6 @@ export async function createLead(req: Request, res: Response): Promise<void> {
 
     // Fire notifications — errors are logged but do NOT fail the response
     sendLeadEmail(data).catch((err) => logError('[Lead] Email failed.', err));
-    sendWhatsAppNotification(data).catch((err) => logError('[Lead] WhatsApp failed.', err));
     sendTelegramNotification(
       `🎨 <b>New Lead — Norm Painting</b>\n\n` +
       `👤 <b>Name:</b> ${data.name}\n` +
@@ -89,7 +87,6 @@ export async function createLeadWithPhotos(req: Request, res: Response): Promise
       sendLeadEmail(data).catch((err) => logError('[Lead] Email failed.', err));
     }
 
-    sendWhatsAppNotification(data).catch((err) => logError('[Lead] WhatsApp failed.', err));
     sendTelegramNotification(
       `🎨 <b>New Lead + Photos — Norm Painting</b>\n\n` +
       `👤 <b>Name:</b> ${data.name}\n` +

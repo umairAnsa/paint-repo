@@ -4,7 +4,6 @@ import Lead from '../models/Lead';
 import { generateQuotePDF } from '../services/quotePdfService';
 import { logger } from '../lib/logger';
 import { Resend } from 'resend';
-import twilio from 'twilio';
 
 async function nextQuoteNumber(): Promise<string> {
   const count = await Quote.countDocuments();
@@ -158,35 +157,6 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
       }
     }
 
-    // ── WhatsApp ──────────────────────────────────────────────────────────────
-    if (process.env.TWILIO_SID && process.env.TWILIO_AUTH && process.env.TWILIO_WHATSAPP_FROM && quote.phone) {
-      try {
-        const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
-        const to = quote.phone.startsWith('+') ? quote.phone : `+${quote.phone}`;
-
-        await client.messages.create({
-          from: process.env.TWILIO_WHATSAPP_FROM,
-          to:   `whatsapp:${to}`,
-          body: [
-            `Hi ${quote.name}! 🎨`,
-            '',
-            `Your quote from *Norm Painting* is ready.`,
-            '',
-            `📋 *Quote:* ${quote.quoteNumber}`,
-            `🔧 *Service:* ${quote.service}`,
-            `💰 *Price:* ${price}`,
-            `📅 *Valid Until:* ${new Date(quote.validUntil).toLocaleDateString('en-AU')}`,
-            quote.description ? `\n📝 *Notes:* ${quote.description}` : '',
-            '',
-            `To accept, reply here or call *0406 342 731*. We've also emailed you the full PDF quote.`,
-          ].filter(Boolean).join('\n'),
-        });
-        logger.info('[Quote] WhatsApp sent.', { to });
-      } catch (err) {
-        logger.error('[Quote] WhatsApp failed.', err);
-        errors.push('WhatsApp failed.');
-      }
-    }
 
     quote.status = 'Sent';
     await quote.save();
