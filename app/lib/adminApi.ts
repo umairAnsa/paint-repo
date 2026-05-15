@@ -113,6 +113,46 @@ export async function downloadQuotePdf(key: string, id: string, quoteNumber: str
   URL.revokeObjectURL(url);
 }
 
+// ── Blog API (uses separate x-blog-key header) ────────────────────────────────
+
+function blogHeaders(key: string) {
+  return { 'Content-Type': 'application/json', 'x-blog-key': key };
+}
+
+export async function getBlogPosts(key: string) {
+  const r = await fetch(`${BASE}/api/blog/admin/all`, { headers: blogHeaders(key) });
+  if (!r.ok) throw new Error('Unauthorized');
+  return r.json();
+}
+
+export async function createBlogPost(key: string, body: object) {
+  const r = await fetch(`${BASE}/api/blog`, {
+    method: 'POST', headers: blogHeaders(key), body: JSON.stringify(body),
+  });
+  return r.json();
+}
+
+export async function updateBlogPost(key: string, id: string, body: object) {
+  const r = await fetch(`${BASE}/api/blog/${id}`, {
+    method: 'PUT', headers: blogHeaders(key), body: JSON.stringify(body),
+  });
+  return r.json();
+}
+
+export async function deleteBlogPost(key: string, id: string) {
+  const r = await fetch(`${BASE}/api/blog/${id}`, {
+    method: 'DELETE', headers: blogHeaders(key),
+  });
+  return r.json();
+}
+
+export async function uploadBlogImage(key: string, image: string, filename: string) {
+  const r = await fetch(`${BASE}/api/blog/upload-image`, {
+    method: 'POST', headers: blogHeaders(key), body: JSON.stringify({ image, filename }),
+  });
+  return r.json();
+}
+
 export async function previewQuotePdf(key: string, id: string) {
   const r    = await fetch(`${BASE}/api/quote/${id}/pdf`, { headers: headers(key) });
   const blob = await r.blob();

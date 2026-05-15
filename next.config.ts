@@ -17,6 +17,22 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
+      {
+        // Blog post images from main WordPress site
+        protocol: "https",
+        hostname: "normpainting.com",
+      },
+      {
+        // Blog images uploaded via admin
+        protocol: "https",
+        hostname: "norm-painting-backend.onrender.com",
+      },
+      {
+        // Local dev backend
+        protocol: "http",
+        hostname: "localhost",
+        port: "5000",
+      },
     ],
   },
 };

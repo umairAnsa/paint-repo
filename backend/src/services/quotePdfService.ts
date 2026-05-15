@@ -100,10 +100,9 @@ export function generateQuotePDF(quote: IQuote): Promise<Buffer> {
 
     // ── 8. Table header ───────────────────────────────────────────────────────
     const COL = {
-      service: { x: ML,       w: 280 },
-      qty:     { x: ML + 285, w:  50 },
-      unit:    { x: ML + 340, w:  95 },
-      total:   { x: ML + 440, w: 105 },
+      service: { x: ML,       w: 360 },
+      qty:     { x: ML + 363, w:  60 },
+      unit:    { x: ML + 426, w:  69 },
     };
 
     const TH = 24;
@@ -114,15 +113,14 @@ export function generateQuotePDF(quote: IQuote): Promise<Buffer> {
          .text(text, col.x + 6, y + 8, { width: col.w - 8, align });
     }
     thCell('SERVICE / DESCRIPTION', COL.service);
-    thCell('QTY',   COL.qty,   'right');
-    thCell('PRICE', COL.unit,  'right');
-    thCell('TOTAL', COL.total, 'right');
+    thCell('QTY',   COL.qty,  'right');
+    thCell('PRICE', COL.unit, 'right');
 
     // ── 9. Table row ──────────────────────────────────────────────────────────
     y += TH;
     const ROW_H = 40;
     doc.rect(ML, y, CW, ROW_H).fill(WHITE).strokeColor(BORDER).lineWidth(0.5).stroke();
-    [COL.qty.x, COL.unit.x, COL.total.x].forEach(cx =>
+    [COL.qty.x, COL.unit.x].forEach(cx =>
       doc.moveTo(cx, y).lineTo(cx, y + ROW_H).strokeColor(BORDER).lineWidth(0.5).stroke()
     );
 
@@ -130,10 +128,9 @@ export function generateQuotePDF(quote: IQuote): Promise<Buffer> {
     doc.fontSize(9).font('Helvetica-Bold').fillColor(DARK)
        .text(quote.service, COL.service.x + 6, mid, { width: COL.service.w - 8 });
     doc.fontSize(8).font('Helvetica').fillColor(DARK)
-       .text('1',                  COL.qty.x   + 6, mid, { width: COL.qty.w   - 8, align: 'right' });
-    doc.text(fmtCurrency(quote.price), COL.unit.x  + 6, mid, { width: COL.unit.w  - 8, align: 'right' });
+       .text('1', COL.qty.x + 6, mid, { width: COL.qty.w - 8, align: 'right' });
     doc.font('Helvetica-Bold')
-       .text(fmtCurrency(quote.price), COL.total.x + 6, mid, { width: COL.total.w - 8, align: 'right' });
+       .text(fmtCurrency(quote.price), COL.unit.x + 6, mid, { width: COL.unit.w - 8, align: 'right' });
 
     // ── 10. Total ─────────────────────────────────────────────────────────────
     y += ROW_H + 16;

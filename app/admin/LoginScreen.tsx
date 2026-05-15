@@ -1,25 +1,37 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import * as api from '../lib/adminApi';
 
-export default function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
+export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [key,  setKey]  = useState('');
   const [err,  setErr]  = useState(false);
   const [busy, setBusy] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true); setErr(false);
+
+    // Try admin key
     try {
       await api.getQuotes(key);
       sessionStorage.setItem('admin_key', key);
-      onLogin(key);
-    } catch {
-      setErr(true);
-    } finally {
-      setBusy(false);
-    }
+      sessionStorage.removeItem('blog_key');
+      onLogin();
+      return;
+    } catch { /* not admin */ }
+
+    // Try blog key
+    try {
+      await api.getBlogPosts(key);
+      sessionStorage.setItem('blog_key', key);
+      sessionStorage.removeItem('admin_key');
+      onLogin();
+      return;
+    } catch { /* not blog either */ }
+
+    setErr(true);
+    setBusy(false);
   }
 
   return (
@@ -36,7 +48,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (key: string) => voi
         <p className="mb-6 text-center text-sm text-gray-400">Norm Painting · Dashboard</p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
-            type="password" placeholder="Enter admin key"
+            type="password" placeholder="Enter key"
             value={key} onChange={e => setKey(e.target.value)} required
             className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316]/30"
           />

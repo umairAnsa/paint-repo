@@ -8,6 +8,7 @@ import { globalLimiter } from './middleware/rateLimiter';
 import leadRouter    from './routes/lead';
 import invoiceRouter from './routes/invoice';
 import quoteRouter   from './routes/quote';
+import blogRouter    from './routes/blog';
 import { logger } from './lib/logger';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 app.use('/api/lead',    leadRouter);
 app.use('/api/invoice', invoiceRouter);
 app.use('/api/quote',   quoteRouter);
+app.use('/api/blog',    blogRouter);
 
 app.get('/health', (_req, res) => {
   res.json({

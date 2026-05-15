@@ -6,11 +6,15 @@ import { type Quote, type Invoice, type Lead } from './types';
 import QuotesTab from './QuotesTab';
 import InvoicesTab from './InvoicesTab';
 import KpiPanel from './KpiPanel';
+import BlogTab from './BlogTab';
 import CreateQuoteModal from './modals/CreateQuoteModal';
 import SendQuoteModal from './modals/SendQuoteModal';
 import GenerateInvoiceModal from './modals/GenerateInvoiceModal';
+import ConfirmModal from './modals/ConfirmModal';
 
-export default function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => void }) {
+export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; onLogout: () => void }) {
+  const adminKey = sessionStorage.getItem('admin_key') ?? '';
+
   const [tab,      setTab]      = useState<'quotes' | 'invoices' | 'kpi'>('quotes');
   const [quotes,   setQuotes]   = useState<Quote[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -20,10 +24,11 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
   const [toast,    setToast]    = useState('');
   const [invBusy,  setInvBusy]  = useState<Record<string, boolean>>({});
 
-  // modals
   const [createModal,  setCreateModal]  = useState<Lead | null | undefined>(undefined);
   const [sendModal,    setSendModal]    = useState<Quote | null>(null);
   const [invoiceModal, setInvoiceModal] = useState<Lead | null>(null);
+  const [confirmInv,   setConfirmInv]   = useState<Invoice | null>(null);
+  const [confirmQuote, setConfirmQuote] = useState<Quote | null>(null);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -31,6 +36,7 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
   }
 
   const loadData = useCallback(async () => {
+    if (role !== 'admin') return;
     setLoading(true);
     try {
       const [ql, q, il, i] = await Promise.all([
@@ -45,7 +51,7 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
       setInvoices(i.invoices);
     } catch { onLogout(); }
     finally { setLoading(false); }
-  }, [adminKey, onLogout]);
+  }, [adminKey, role, onLogout]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -58,17 +64,41 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
   }
 
   async function handleDeleteInvoice(inv: Invoice) {
-    if (!confirm(`Delete ${inv.invoiceNumber}?`)) return;
-    await api.deleteInvoice(adminKey, inv._id);
-    loadData();
+    setConfirmInv(inv);
   }
 
   async function handleDeleteQuote(q: Quote) {
-    if (!confirm(`Delete ${q.quoteNumber}?`)) return;
-    await api.deleteQuote(adminKey, q._id);
-    loadData();
+    setConfirmQuote(q);
   }
 
+  // Blog-only view
+  if (role === 'blog') {
+    return (
+      <div className="min-h-screen bg-[#f8fafc]">
+        <header className="border-b border-gray-200 bg-white px-6 py-4">
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0c1f3d]">
+                <svg className="h-4 w-4 text-[#f97316]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-black text-[#111827]">Norm Painting</p>
+                <p className="text-xs text-gray-400">Blog Dashboard</p>
+              </div>
+            </div>
+            <button onClick={onLogout} className="text-xs font-semibold text-gray-400 hover:text-gray-600">Logout</button>
+          </div>
+        </header>
+        <div className="mx-auto max-w-7xl px-6 py-8">
+          <BlogTab onRefresh={() => {}} />
+        </div>
+      </div>
+    );
+  }
+
+  // Admin view
   const stats = [
     { label: 'Quotes',          value: quotes.length },
     { label: 'Quotes Accepted', value: quotes.filter(q => q.status === 'Accepted').length },
@@ -84,6 +114,20 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
         </div>
       )}
 
+      {confirmInv && (
+        <ConfirmModal
+          message={`Delete invoice ${confirmInv.invoiceNumber}?`}
+          onConfirm={async () => { await api.deleteInvoice(adminKey, confirmInv._id); setConfirmInv(null); loadData(); }}
+          onCancel={() => setConfirmInv(null)}
+        />
+      )}
+      {confirmQuote && (
+        <ConfirmModal
+          message={`Delete quote ${confirmQuote.quoteNumber}?`}
+          onConfirm={async () => { await api.deleteQuote(adminKey, confirmQuote._id); setConfirmQuote(null); loadData(); }}
+          onCancel={() => setConfirmQuote(null)}
+        />
+      )}
       {createModal !== undefined && (
         <CreateQuoteModal lead={createModal} adminKey={adminKey}
           onClose={() => setCreateModal(undefined)}
@@ -100,7 +144,6 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
           onCreated={() => { setInvoiceModal(null); setTab('invoices'); loadData(); showToast('Invoice created!'); }} />
       )}
 
-      {/* Header */}
       <header className="border-b border-gray-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
@@ -119,7 +162,6 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
       </header>
 
       <div className="mx-auto max-w-7xl px-6 py-8">
-        {/* Stats */}
         <div className="mb-6 grid grid-cols-4 gap-4">
           {stats.map(s => (
             <div key={s.label} className="rounded-2xl border border-gray-200 bg-white p-5">
@@ -129,7 +171,6 @@ export default function Dashboard({ adminKey, onLogout }: { adminKey: string; on
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="mb-5 flex items-center justify-between">
           <div className="flex w-fit gap-1 rounded-xl border border-gray-200 bg-white p-1">
             {(['quotes', 'invoices', 'kpi'] as const).map(t => (

@@ -34,6 +34,18 @@ export interface Invoice {
   status: 'Pending' | 'Sent' | 'Paid';
 }
 
+export interface AdminBlogPost {
+  _id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  image: string;
+  content: object[];
+  published: boolean;
+  createdAt: string;
+}
+
 export const PAGE_SIZE = 10;
 
 export const QUOTE_STATUS_COLORS: Record<string, string> = {
