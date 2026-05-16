@@ -4,6 +4,7 @@ export interface Lead {
   email: string;
   phone?: string;
   description?: string;
+  source?: 'hero' | 'contact' | 'estimate';
   createdAt: string;
 }
 

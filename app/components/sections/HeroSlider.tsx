@@ -58,7 +58,7 @@ function QuoteForm() {
     e.preventDefault();
     setStatus('loading');
     try {
-      await submitLead({ name, phone, email, description: `Service: ${service || 'Not specified'}` });
+      await submitLead({ name, phone, email, description: `Service: ${service || 'Not specified'}`, source: 'hero' });
       setStatus('success');
     } catch {
       setStatus('error');

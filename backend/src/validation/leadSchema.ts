@@ -24,6 +24,11 @@ export const leadSchema = z.object({
     .trim()
     .min(5, 'Message must be at least 5 characters.')
     .max(2000, 'Message must be under 2000 characters.'),
+
+  source: z
+    .enum(['hero', 'contact', 'estimate'])
+    .optional()
+    .default('contact'),
 });
 
 export type LeadInput = z.infer<typeof leadSchema>;

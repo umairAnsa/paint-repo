@@ -160,10 +160,10 @@ export function CostCalculator() {
         await fetch(`${BACKEND_URL}/api/lead/with-photos`, {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ name, email, phone, description, images: base64Images }),
+          body:    JSON.stringify({ name, email, phone, description, images: base64Images, source: 'estimate' }),
         });
       } else {
-        await submitLead({ name, email, phone, description });
+        await submitLead({ name, email, phone, description, source: 'estimate' });
       }
       setSent(true);
       setPhotos([]);

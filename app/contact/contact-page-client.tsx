@@ -73,7 +73,7 @@ export function ContactPageClient() {
     setErrorMsg('');
 
     try {
-      await submitLead({ name, email, phone, description });
+      await submitLead({ name, email, phone, description, source: 'contact' });
       form.reset();
       setStatus('success');
     } catch (err) {

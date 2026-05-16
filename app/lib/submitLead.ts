@@ -5,6 +5,7 @@ export interface LeadPayload {
   email: string;
   phone?: string;
   description: string;
+  source: 'hero' | 'contact' | 'estimate';
 }
 
 export async function submitLead(payload: LeadPayload): Promise<void> {
@@ -16,6 +17,7 @@ export async function submitLead(payload: LeadPayload): Promise<void> {
       email: payload.email,
       phone: payload.phone ?? "",
       description: payload.description,
+      source: payload.source,
     }),
   });
 

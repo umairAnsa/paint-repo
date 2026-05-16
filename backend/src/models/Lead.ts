@@ -5,6 +5,7 @@ export interface ILead {
   email: string;
   phone: string;
   description: string;
+  source: 'hero' | 'contact' | 'estimate';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,6 +16,7 @@ const LeadSchema = new Schema<ILead>(
     email:       { type: String, required: true, trim: true, lowercase: true, maxlength: 200 },
     phone:       { type: String, trim: true, default: '', maxlength: 30 },
     description: { type: String, required: true, trim: true, maxlength: 2000 },
+    source:      { type: String, enum: ['hero', 'contact', 'estimate'], default: 'contact' },
   },
   { timestamps: true },
 );

@@ -15,15 +15,26 @@ interface Props {
   onStatusChange: () => void;
 }
 
+const SOURCE_LABELS: Record<string, string> = {
+  hero:     'Home Page',
+  contact:  'Contact',
+  estimate: 'Estimate',
+};
+
 export default function QuotesTab({
   quotes, qLeads, adminKey,
   onSetCreateModal, onSetSendModal, onDeleteQuote, onStatusChange,
 }: Props) {
-  const [qPage,     setQPage]     = useState(1);
-  const [qLeadPage, setQLeadPage] = useState(1);
+  const [qPage,      setQPage]      = useState(1);
+  const [qLeadPage,  setQLeadPage]  = useState(1);
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'hero' | 'contact' | 'estimate'>('all');
 
-  const quotesPage = quotes.slice((qPage - 1) * PAGE_SIZE, qPage * PAGE_SIZE);
-  const qLeadsPage = qLeads.slice((qLeadPage - 1) * PAGE_SIZE, qLeadPage * PAGE_SIZE);
+  const filteredLeads = sourceFilter === 'all'
+    ? qLeads
+    : qLeads.filter(l => (l.source ?? 'contact') === sourceFilter);
+
+  const quotesPage     = quotes.slice((qPage - 1) * PAGE_SIZE, qPage * PAGE_SIZE);
+  const qLeadsPage     = filteredLeads.slice((qLeadPage - 1) * PAGE_SIZE, qLeadPage * PAGE_SIZE);
 
   return (
     <div className="flex flex-col gap-4">
@@ -100,8 +111,20 @@ export default function QuotesTab({
 
       {/* Quote Leads table */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-        <div className="border-b border-gray-100 bg-[#f8fafc] px-5 py-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Leads — Create Quote</p>
+        <div className="flex items-center justify-between border-b border-gray-100 bg-[#f8fafc] px-5 py-3">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+            Leads — Create Quote ({filteredLeads.length})
+          </p>
+          <div className="flex gap-1">
+            {(['all', 'hero', 'contact', 'estimate'] as const).map(s => (
+              <button key={s} onClick={() => { setSourceFilter(s); setQLeadPage(1); }}
+                className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
+                  sourceFilter === s ? 'bg-[#0c1f3d] text-white' : 'text-gray-500 hover:bg-gray-100'
+                }`}>
+                {s === 'all' ? 'All' : SOURCE_LABELS[s]}
+              </button>
+            ))}
+          </div>
         </div>
         {qLeads.length === 0 ? (
           <p className="py-10 text-center text-sm text-gray-400">No leads yet.</p>
@@ -109,7 +132,7 @@ export default function QuotesTab({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                {['Name', 'Email', 'Phone', 'Message', 'Date', 'Action'].map(h => (
+                {['Name', 'Email', 'Phone', 'Message', 'Source', 'Date', 'Action'].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">{h}</th>
                 ))}
               </tr>
@@ -121,6 +144,15 @@ export default function QuotesTab({
                   <td className="px-4 py-3 text-gray-500">{lead.email}</td>
                   <td className="px-4 py-3 text-gray-500">{lead.phone || '—'}</td>
                   <td className="max-w-xs px-4 py-3 text-gray-500"><p className="truncate">{lead.description || '—'}</p></td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                      lead.source === 'hero'     ? 'bg-blue-100 text-blue-700'   :
+                      lead.source === 'estimate' ? 'bg-orange-100 text-orange-700' :
+                                                   'bg-gray-100 text-gray-600'
+                    }`}>
+                      {SOURCE_LABELS[lead.source ?? 'contact']}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-gray-400">{fmt(lead.createdAt)}</td>
                   <td className="px-4 py-3">
                     <button onClick={() => onSetCreateModal(lead)}
@@ -133,7 +165,7 @@ export default function QuotesTab({
             </tbody>
           </table>
         )}
-        <Pagination page={qLeadPage} total={qLeads.length} onChange={setQLeadPage} />
+        <Pagination page={qLeadPage} total={filteredLeads.length} onChange={setQLeadPage} />
       </div>
     </div>
   );
