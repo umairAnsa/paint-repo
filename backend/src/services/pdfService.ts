@@ -121,12 +121,13 @@ export function generateInvoicePDF(invoice: IInvoice): Promise<Buffer> {
     // ─────────────────────────────────────────────────────────────────────────
     // 8. Table header
     // ─────────────────────────────────────────────────────────────────────────
+    // Columns must fit within ML → ML+CW (50 → 545)
     const COL = {
-      service: { x: ML,       w: 180 },
-      desc:    { x: ML + 185, w: 140 },
-      qty:     { x: ML + 330, w:  50 },
-      unit:    { x: ML + 385, w:  70 },
-      total:   { x: ML + 458, w:  87 },
+      service: { x: ML,       w: 148 },  // 50 → 198
+      desc:    { x: ML + 150, w: 133 },  // 200 → 333
+      qty:     { x: ML + 285, w:  47 },  // 335 → 382
+      unit:    { x: ML + 334, w:  73 },  // 384 → 457
+      total:   { x: ML + 409, w:  86 },  // 459 → 545 ✓ = W - MR
     };
 
     const TH = 24;

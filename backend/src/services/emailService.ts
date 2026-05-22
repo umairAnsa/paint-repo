@@ -3,7 +3,7 @@ import { logger } from '../lib/logger';
 import type { LeadInput } from '../validation/leadSchema';
 
 function buildEmailHtml(data: LeadInput): string {
-  const logoSrc = 'https://new.normpainting.com/logo.png';
+  const logoSrc = 'https://normpainting.com/logo.png';
   const phoneRow = data.phone
     ? `<a href="tel:${data.phone}" style="color:#1e3a8a;text-decoration:none;font-weight:600;">${data.phone}</a>`
     : '<span style="color:#9ca3af;">Not provided</span>';

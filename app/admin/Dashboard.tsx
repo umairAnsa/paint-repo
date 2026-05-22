@@ -10,6 +10,7 @@ import BlogTab from './BlogTab';
 import CreateQuoteModal from './modals/CreateQuoteModal';
 import SendQuoteModal from './modals/SendQuoteModal';
 import GenerateInvoiceModal from './modals/GenerateInvoiceModal';
+import CreateStandaloneInvoiceModal from './modals/CreateStandaloneInvoiceModal';
 import ConfirmModal from './modals/ConfirmModal';
 
 export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; onLogout: () => void }) {
@@ -24,11 +25,12 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
   const [toast,    setToast]    = useState('');
   const [invBusy,  setInvBusy]  = useState<Record<string, boolean>>({});
 
-  const [createModal,  setCreateModal]  = useState<Lead | null | undefined>(undefined);
-  const [sendModal,    setSendModal]    = useState<Quote | null>(null);
-  const [invoiceModal, setInvoiceModal] = useState<Lead | null>(null);
-  const [confirmInv,   setConfirmInv]   = useState<Invoice | null>(null);
-  const [confirmQuote, setConfirmQuote] = useState<Quote | null>(null);
+  const [createModal,       setCreateModal]       = useState<Lead | null | undefined>(undefined);
+  const [sendModal,         setSendModal]         = useState<Quote | null>(null);
+  const [invoiceModal,      setInvoiceModal]      = useState<Lead | null>(null);
+  const [standaloneInvOpen, setStandaloneInvOpen] = useState(false);
+  const [confirmInv,        setConfirmInv]        = useState<Invoice | null>(null);
+  const [confirmQuote,      setConfirmQuote]      = useState<Quote | null>(null);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -143,6 +145,11 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
           onClose={() => setInvoiceModal(null)}
           onCreated={() => { setInvoiceModal(null); setTab('invoices'); loadData(); showToast('Invoice created!'); }} />
       )}
+      {standaloneInvOpen && (
+        <CreateStandaloneInvoiceModal adminKey={adminKey}
+          onClose={() => setStandaloneInvOpen(false)}
+          onCreated={() => { setStandaloneInvOpen(false); loadData(); showToast('Invoice created!'); }} />
+      )}
 
       <header className="border-b border-gray-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -186,6 +193,12 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
             <button onClick={() => setCreateModal(null)}
               className="rounded-xl bg-[#f97316] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#ea6c07]">
               + New Quote
+            </button>
+          )}
+          {tab === 'invoices' && (
+            <button onClick={() => setStandaloneInvOpen(true)}
+              className="rounded-xl bg-[#f97316] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#ea6c07]">
+              + New Invoice
             </button>
           )}
         </div>

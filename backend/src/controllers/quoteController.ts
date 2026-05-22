@@ -113,7 +113,7 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
               <div style="background:#0c1f3d;padding:28px 32px;border-bottom:4px solid #f97316;">
-                <img src="https://new.normpainting.com/logo.png" alt="Norm Painting" height="48" style="display:block;margin-bottom:12px;" />
+                <img src="https://normpainting.com/logo.png" alt="Norm Painting" height="48" style="display:block;margin-bottom:12px;" />
                 <h2 style="color:#ffffff;margin:0;font-size:20px;">Your Quote is Ready!</h2>
               </div>
               <div style="padding:32px;background:#ffffff;border:1px solid #e5e7eb;">
