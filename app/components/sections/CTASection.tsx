@@ -52,7 +52,7 @@ export default function CTASection() {
             Call 0406 342 731
           </a>
           <Link
-            href="/contact"
+            href="/contact-us"
             className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-white/20 px-8 text-sm font-bold text-white transition hover:border-white/45 hover:bg-white/8 sm:w-auto"
           >
             Send a Message

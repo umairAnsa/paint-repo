@@ -51,7 +51,7 @@ const SERVICES = [
     title: 'Satisfaction Guaranteed',
     description:
       'We back every project with a 7-year workmanship warranty. If you\'re not completely happy, we return and make it right — no questions asked.',
-    href: '/about',
+    href: '/about-us',
     image: '/projects/project-25.jpg',
   },
 ];

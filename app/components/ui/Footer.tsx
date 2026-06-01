@@ -11,11 +11,11 @@ const SERVICES = [
 ];
 
 const COMPANY = [
-  { label: 'About Us', href: '/about' },
+  { label: 'About Us', href: '/about-us' },
   { label: 'Services', href: '/services' },
   { label: 'Projects', href: '/projects' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Contact Us', href: '/contact' },
+  { label: 'Contact Us', href: '/contact-us' },
   { label: 'Get a Quote', href: '/estimate' },
 ];
 

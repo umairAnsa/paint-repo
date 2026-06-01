@@ -96,7 +96,7 @@ export default function AboutPreview() {
 
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
-              href="/about"
+              href="/about-us"
               className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#1e3a8a] px-7 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
             >
               Learn More About Us

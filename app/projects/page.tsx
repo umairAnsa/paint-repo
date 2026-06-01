@@ -239,7 +239,7 @@ export default function ProjectsPage() {
               Get Free Quote
             </Link>
             <Link
-              href="/contact"
+              href="/contact-us"
               className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-gray-200 px-8 text-sm font-bold text-gray-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
             >
               Contact Us

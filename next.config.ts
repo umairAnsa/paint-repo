@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: '/about',   destination: '/about-us',   permanent: true },
+      { source: '/contact', destination: '/contact-us', permanent: true },
+    ];
+  },
   allowedDevOrigins: ["*.ngrok-free.app", "*.ngrok.io"],
   compress: true,
   images: {

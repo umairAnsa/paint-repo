@@ -129,7 +129,7 @@ export default function GalleryPage() {
               Calculate Your Estimate
             </Link>
             <Link
-              href="/contact"
+              href="/contact-us"
               className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/20 px-8 text-sm font-bold text-white transition hover:border-white/45 hover:bg-white/8"
             >
               Talk to Us First
