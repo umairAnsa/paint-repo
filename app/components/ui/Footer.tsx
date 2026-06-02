@@ -16,6 +16,27 @@ const SERVICES = [
   { label: 'Colour Consultation',  href: '/colour-consultation' },
 ];
 
+const LOCATIONS = [
+  { label: 'Painters in Geelong',        href: '/painters-in-geelong' },
+  { label: 'Painters in Geelong West',   href: '/painters-in-geelong-west' },
+  { label: 'Painters in Bellarine',      href: '/painters-in-bellarine' },
+  { label: 'Painters in South Yarra',    href: '/painters-in-south-yarra' },
+  { label: 'Painters in Richmond',       href: '/painters-in-richmond' },
+  { label: 'Painters in St Kilda',       href: '/painters-in-st-kilda' },
+  { label: 'Painters in Hawthorn',       href: '/painters-in-hawthorn' },
+  { label: 'Painters in Brighton',       href: '/painters-in-brighton' },
+  { label: 'Painters in Fitzroy',        href: '/painters-in-fitzroy' },
+  { label: 'Painters in Camberwell',     href: '/painters-in-camberwell' },
+  { label: 'Painters in Box Hill',       href: '/painters-in-box-hill' },
+  { label: 'Painters in Doncaster',      href: '/painters-in-doncaster' },
+  { label: 'Painters in Frankston',      href: '/painters-in-frankston' },
+  { label: 'Painters in Dandenong',      href: '/painters-in-dandenong' },
+  { label: 'Painters in Footscray',      href: '/painters-in-footscray' },
+  { label: 'Painters in Werribee',       href: '/painters-in-werribee' },
+  { label: 'Painters in Point Cook',     href: '/painters-in-point-cook' },
+  { label: 'Painters in Glen Waverley',  href: '/painters-in-glen-waverley' },
+];
+
 const COMPANY = [
   { label: 'About Us', href: '/about-us' },
   { label: 'Services', href: '/services' },
@@ -32,7 +53,7 @@ export default function Footer() {
     <footer className="bg-[#061524] text-white">
       {/* Main content */}
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
 
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
@@ -76,6 +97,20 @@ export default function Footer() {
                 <li key={s.label}>
                   <Link href={s.href} className="text-sm text-white/50 transition hover:text-white">
                     {s.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Locations */}
+          <div>
+            <h3 className="mb-5 text-xs font-black uppercase tracking-widest text-[#f97316]">Locations</h3>
+            <ul className="flex flex-col gap-3">
+              {LOCATIONS.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href} className="text-sm text-white/50 transition hover:text-white">
+                    {l.label}
                   </Link>
                 </li>
               ))}
