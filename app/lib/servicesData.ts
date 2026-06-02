@@ -62,7 +62,7 @@ export const servicesData: Record<string, ServiceData> = {
       'Skim coating for heavily damaged walls',
       'Priming after repairs for colour consistency',
     ],
-    image: '/projects/project-15.jpg',
+    image: '/projects/project-16.jpg',
     accent: '#b45309',
     metaDescription:
       'Professional surface repair and preparation in Geelong & Melbourne. Crack filling, patching, and skim coating before painting — by Norm Painting.',
@@ -81,7 +81,7 @@ export const servicesData: Record<string, ServiceData> = {
       'Detailed condition reports with each visit',
       'Priority booking for existing clients',
     ],
-    image: '/projects/project-22.jpg',
+    image: '/projects/project-20.jpg',
     accent: '#059669',
     metaDescription:
       'Maintenance painting programmes in Geelong & Melbourne. Protect your property value with scheduled painting upkeep — by Norm Painting.',
