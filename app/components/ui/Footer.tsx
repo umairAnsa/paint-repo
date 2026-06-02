@@ -2,12 +2,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const SERVICES = [
-  { label: 'Interior Painting', href: '/services#interior' },
-  { label: 'Exterior Painting', href: '/services#exterior' },
-  { label: 'Roof Painting', href: '/services#roof' },
-  { label: 'Commercial Painting', href: '/services#commercial' },
-  { label: 'Fence & Deck Painting', href: '/services#fence' },
-  { label: 'Colour Consultation', href: '/services#consultation' },
+  { label: 'Domestic Painting',    href: '/domestic-painting' },
+  { label: 'Exterior Painting',    href: '/exterior-painting' },
+  { label: 'Commercial Painting',  href: '/commercial-painting' },
+  { label: 'Roof Painting',        href: '/roof-painting' },
+  { label: 'Fence Painting',       href: '/fence-painting' },
+  { label: 'Garage Epoxy',         href: '/garage-epoxy' },
+  { label: 'Wallpaper Removal',    href: '/wallpaper-removal' },
+  { label: 'Heritage Work',        href: '/heritage-work' },
+  { label: 'Repairs',              href: '/repairs' },
+  { label: 'Maintenance',          href: '/maintenance' },
+  { label: 'Roller Application',   href: '/roller-application' },
+  { label: 'Colour Consultation',  href: '/colour-consultation' },
 ];
 
 const COMPANY = [
