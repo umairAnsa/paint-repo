@@ -21,6 +21,10 @@ const SOURCE_LABELS: Record<string, string> = {
   estimate: 'Estimate',
 };
 
+function quoteTotal(q: Quote) {
+  return q.price + (q.gstAmount || 0);
+}
+
 export default function QuotesTab({
   quotes, qLeads, adminKey,
   onSetCreateModal, onSetSendModal, onDeleteQuote, onStatusChange,
@@ -66,7 +70,14 @@ export default function QuotesTab({
                       <p className="text-xs text-gray-400">{q.email}</p>
                     </td>
                     <td className="max-w-[160px] px-4 py-3 text-gray-600"><p className="truncate">{q.service}</p></td>
-                    <td className="px-4 py-3 font-bold text-[#111827]">{fmtPrice(q.price)}</td>
+                    <td className="px-4 py-3 font-bold text-[#111827]">
+                      {fmtPrice(quoteTotal(q))}
+                      {!!q.gstAmount && (
+                        <p className="text-[11px] font-semibold text-gray-400">
+                          incl. GST{q.gstPercentage ? ` ${q.gstPercentage}%` : ''} {fmtPrice(q.gstAmount)}
+                        </p>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-gray-500">{fmt(q.validUntil)}</td>
                     <td className="px-4 py-3">
                       <select value={q.status}

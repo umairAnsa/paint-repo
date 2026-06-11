@@ -70,8 +70,9 @@ export function generateInvoicePDF(invoice: IInvoice): Promise<Buffer> {
     doc.fontSize(9).font('Helvetica-Bold').fillColor(DARK).text('Norm Painting Pty Ltd', ML, y);
     doc.fontSize(8).font('Helvetica').fillColor(GRAY);
     doc.text('Geelong & Melbourne VIC', ML, y + 13);
-    doc.text('ABN: 52 704 401 415', ML, y + 25);
-    doc.text('0406 342 731  ·  normpainting.com', ML, y + 37);
+    doc.text('ABN: 84 673 345 054', ML, y + 25);
+    doc.text('+61 406 342 731', ML, y + 37);
+    doc.text('info@normpainting.com', ML, y + 49);
 
     // ─────────────────────────────────────────────────────────────────────────
     // 4. Invoice meta (right column)
@@ -205,13 +206,21 @@ export function generateInvoicePDF(invoice: IInvoice): Promise<Buffer> {
     // 11. Payment details
     // ─────────────────────────────────────────────────────────────────────────
     y += 10;
-    doc.rect(ML, y, CW, 56).fill(LIGHT).strokeColor(BORDER).lineWidth(0.5).stroke();
+    doc.rect(ML, y, CW, 82).fill(LIGHT).strokeColor(BORDER).lineWidth(0.5).stroke();
     doc.fontSize(8).font('Helvetica-Bold').fillColor(DARK).text('PAYMENT DETAILS', ML + 12, y + 10);
     doc.fontSize(8).font('Helvetica').fillColor(GRAY)
-       .text('Bank Transfer  ·  BSB: 000-000  ·  Account: 000 000 000', ML + 12, y + 23);
+       .text('Bank Transfer  ·  BSB: 013017  ·  Account: 165166084', ML + 12, y + 23);
     doc.text(`Reference: ${invoice.invoiceNumber}  ·  Due: ${fmtDate(invoice.dueDate)}`, ML + 12, y + 36);
 
     // ─────────────────────────────────────────────────────────────────────────
+    doc.rect(ML + 11, y + 22, CW - 22, 56).fill(LIGHT);
+    doc.fontSize(8).font('Helvetica').fillColor(GRAY)
+       .text('Hi Scott here are these bank details', ML + 12, y + 23);
+    doc.text('Account details are:', ML + 12, y + 36);
+    doc.text('BSB: 013017', ML + 12, y + 49);
+    doc.text('ACCOUNT: 165166084', ML + 12, y + 62);
+    doc.text('Name Norm painting', ML + 12, y + 75);
+
     // 12. Footer
     // ─────────────────────────────────────────────────────────────────────────
     const footerY = H - 80;
@@ -221,7 +230,7 @@ export function generateInvoicePDF(invoice: IInvoice): Promise<Buffer> {
     doc.fontSize(11).font('Helvetica-Bold').fillColor(WHITE)
        .text('Thanks for your business!', 0, footerY + 18, { align: 'center', width: W });
     doc.fontSize(8).font('Helvetica').fillColor('rgba(255,255,255,0.50)')
-       .text('Questions? Call 0406 342 731 or email us at normpainting.com', 0, footerY + 36, { align: 'center', width: W });
+       .text('Questions? Call +61 406 342 731 or email us at info@normpainting.com', 0, footerY + 36, { align: 'center', width: W });
 
     if (logoExists) {
       doc.image(LOGO_PATH, ML, footerY + 12, { height: 36, fit: [100, 36] });

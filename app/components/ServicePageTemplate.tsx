@@ -41,7 +41,7 @@ export default function ServicePageTemplate({ service }: { service: ServiceData 
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
-              href="/estimate"
+              href="/contact-us"
               className="inline-flex min-h-12 items-center justify-center rounded-full px-8 text-sm font-bold text-white shadow-xl transition hover:-translate-y-0.5"
               style={{ background: service.accent }}
             >
@@ -105,7 +105,7 @@ export default function ServicePageTemplate({ service }: { service: ServiceData 
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
-                  href="/estimate"
+                  href="/contact-us"
                   className="inline-flex min-h-11 items-center justify-center rounded-full px-6 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5"
                   style={{ background: service.accent, boxShadow: `0 8px 24px ${service.accent}30` }}
                 >

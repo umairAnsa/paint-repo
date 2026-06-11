@@ -107,7 +107,7 @@ export default function HousePaintersMelbournePage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
-              href="/estimate"
+              href="/contact-us"
               className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-xl shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
             >
               Get Free Quote
@@ -197,7 +197,7 @@ export default function HousePaintersMelbournePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/estimate"
+              <Link href="/contact-us"
                 className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]">
                 Get a Free Quote Today
               </Link>

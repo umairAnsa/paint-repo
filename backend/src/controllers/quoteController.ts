@@ -43,7 +43,7 @@ export async function listLeads(_req: Request, res: Response): Promise<void> {
 // ── POST /api/quote ───────────────────────────────────────────────────────────
 
 export async function createQuote(req: Request, res: Response): Promise<void> {
-  const { leadId, name, email, phone, service, price, description, validityDays } = req.body;
+  const { leadId, name, email, phone, service, price, gstPercentage, gstAmount, description, validityDays } = req.body;
 
   if (!name || !email || !service || !price) {
     res.status(400).json({ error: 'name, email, service and price are required.' });
@@ -52,11 +52,41 @@ export async function createQuote(req: Request, res: Response): Promise<void> {
 
   try {
     const quoteNumber = await nextQuoteNumber();
+    const parsedPrice = Number(price);
+    const parsedGstPercentage = gstPercentage === undefined || gstPercentage === '' ? undefined : Number(gstPercentage);
+    const fallbackGstAmount = gstAmount === undefined || gstAmount === '' ? undefined : Number(gstAmount);
+
+    if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+      res.status(400).json({ error: 'Price must be a positive number.' });
+      return;
+    }
+
+    if (parsedGstPercentage !== undefined && (!Number.isFinite(parsedGstPercentage) || parsedGstPercentage < 0)) {
+      res.status(400).json({ error: 'GST percentage must be a positive number.' });
+      return;
+    }
+
+    if (
+      parsedGstPercentage === undefined &&
+      fallbackGstAmount !== undefined &&
+      (!Number.isFinite(fallbackGstAmount) || fallbackGstAmount < 0)
+    ) {
+      res.status(400).json({ error: 'GST amount must be a positive number.' });
+      return;
+    }
+
+    const calculatedGstAmount =
+      parsedGstPercentage !== undefined
+        ? Number(((parsedPrice * parsedGstPercentage) / 100).toFixed(2))
+        : fallbackGstAmount;
+
     const quote = await Quote.create({
       quoteNumber,
       leadId: leadId || undefined,
       name, email, phone, service,
-      price:       Number(price),
+      price:       parsedPrice,
+      gstPercentage: parsedGstPercentage,
+      gstAmount:   calculatedGstAmount,
       description: description || undefined,
       validUntil:  validityDate(Number(validityDays) || 7),
     });
@@ -97,7 +127,12 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
 
     const pdf    = await generateQuotePDF(quote);
     const errors: string[] = [];
-    const price  = `$${quote.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
+    const quoteTotal = quote.price + (quote.gstAmount || 0);
+    const price  = `$${quoteTotal.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
+    const gstLabel = quote.gstPercentage ? `GST (${quote.gstPercentage}%)` : 'GST';
+    const gstRow = quote.gstAmount
+      ? `<tr><td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">${gstLabel}</td><td style="padding:12px 16px;font-size:14px;color:#111827;border-top:1px solid #e5e7eb;">$${quote.gstAmount.toLocaleString('en-AU', { minimumFractionDigits: 2 })}</td></tr>`
+      : '';
 
     // ── Email via Resend ──────────────────────────────────────────────────────
     if (process.env.RESEND_API_KEY) {
@@ -132,6 +167,7 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
                     <td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">Quote Total</td>
                     <td style="padding:12px 16px;font-size:16px;color:#f97316;font-weight:800;border-top:1px solid #e5e7eb;">${price}</td>
                   </tr>
+                  ${gstRow}
                   <tr>
                     <td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">Valid Until</td>
                     <td style="padding:12px 16px;font-size:14px;color:#111827;border-top:1px solid #e5e7eb;">${new Date(quote.validUntil).toLocaleDateString('en-AU', { day: '2-digit', month: 'long', year: 'numeric' })}</td>

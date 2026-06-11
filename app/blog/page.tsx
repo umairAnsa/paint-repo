@@ -106,7 +106,7 @@ export default async function BlogPage() {
             Get a free, no-obligation quote from Melbourne&apos;s trusted painting team.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/estimate" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]">
+            <Link href="/contact-us" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]">
               Get Free Quote
             </Link>
             <Link href="/contact-us" className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-gray-200 px-8 text-sm font-bold text-gray-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]">

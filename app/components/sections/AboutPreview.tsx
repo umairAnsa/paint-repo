@@ -102,7 +102,7 @@ export default function AboutPreview() {
               Learn More About Us
             </Link>
             <Link
-              href="/estimate"
+              href="/contact-us"
               className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-[#f97316] px-7 text-sm font-bold text-[#f97316] transition hover:bg-[#f97316] hover:text-white"
             >
               Get Free Quote

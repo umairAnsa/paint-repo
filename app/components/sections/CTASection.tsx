@@ -34,7 +34,7 @@ export default function CTASection() {
         {/* CTAs */}
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
-            href="/estimate"
+            href="/contact-us"
             className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-2xl shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07] hover:shadow-orange-500/40 sm:w-auto"
           >
             Get Free Quote

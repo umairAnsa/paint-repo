@@ -43,7 +43,7 @@ const COMPANY = [
   { label: 'Projects', href: '/projects' },
   { label: 'Blog', href: '/blog' },
   { label: 'Contact Us', href: '/contact-us' },
-  { label: 'Get a Quote', href: '/estimate' },
+  { label: 'Get a Quote', href: '/contact-us' },
 ];
 
 export default function Footer() {
@@ -202,8 +202,8 @@ export default function Footer() {
             © {year} Norm Painting. All rights reserved. ABN: 84 673 345 054
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-sm text-white/30 transition hover:text-white/60">Privacy Policy</a>
-            <a href="#" className="text-sm text-white/30 transition hover:text-white/60">Terms of Service</a>
+            <Link href="/privacy-policy" className="text-sm text-white/30 transition hover:text-white/60">Privacy Policy</Link>
+            <Link href="/terms-and-conditions" className="text-sm text-white/30 transition hover:text-white/60">Terms & Conditions</Link>
           </div>
         </div>
       </div>

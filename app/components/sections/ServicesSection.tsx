@@ -43,7 +43,7 @@ const SERVICES = [
     title: 'Free Written Quotes',
     description:
       'Detailed, transparent pricing with no hidden fees. We visit your property, assess the work, and deliver a clear itemised quote within one business day.',
-    href: '/estimate',
+    href: '/contact-us',
     image: '/projects/project-24.jpg',
   },
   {
@@ -105,14 +105,6 @@ export default function ServicesSection() {
               <div className="flex flex-1 flex-col p-6">
                 <h3 className="text-lg font-black text-[#111827]">{service.title}</h3>
                 <p className="mt-2 flex-1 text-sm leading-6 text-gray-500">{service.description}</p>
-
-                {/* Arrow link */}
-                <div className="mt-5 flex items-center gap-1.5 text-sm font-bold text-[#1e3a8a] transition group-hover:gap-3">
-                  Learn more
-                  <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </div>
               </div>
             </Link>
             </AnimatedCard>
@@ -133,7 +125,7 @@ export default function ServicesSection() {
             </div>
             <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
               <Link
-                href="/estimate"
+                href="/contact-us"
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
               >
                 Get Free Quote

@@ -112,7 +112,7 @@ export default function AboutPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
-              href="/estimate"
+              href="/contact-us"
               className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-xl shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
             >
               Get Free Quote
@@ -300,7 +300,7 @@ export default function AboutPage() {
               There are plenty of painters out there. Here&apos;s what makes our clients choose us — and come back again.
             </p>
             <Link
-              href="/estimate"
+              href="/contact-us"
               className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
             >
               Get Free Quote
@@ -342,7 +342,7 @@ export default function AboutPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
-              href="/estimate"
+              href="/contact-us"
               className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#1e3a8a] px-8 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
             >
               Get Free Quote

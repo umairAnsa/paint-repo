@@ -16,6 +16,8 @@ export interface Quote {
   phone?: string;
   service: string;
   price: number;
+  gstPercentage?: number;
+  gstAmount?: number;
   description?: string;
   validUntil: string;
   status: 'Draft' | 'Sent' | 'Accepted' | 'Rejected';

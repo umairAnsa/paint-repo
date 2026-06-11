@@ -17,6 +17,7 @@ export default function SendQuoteModal({ quote, adminKey, onClose, onSent }: Pro
   const [email, setEmail] = useState(quote.email);
   const [busy,  setBusy]  = useState(false);
   const [err,   setErr]   = useState('');
+  const total = quote.price + (quote.gstAmount || 0);
 
   async function handleSend(e: FormEvent) {
     e.preventDefault();
@@ -46,7 +47,12 @@ export default function SendQuoteModal({ quote, adminKey, onClose, onSent }: Pro
         </div>
         <div className="mb-4 rounded-xl bg-[#f8fafc] p-3 text-sm">
           <p className="font-bold text-[#0c1f3d]">{quote.quoteNumber}</p>
-          <p className="text-gray-500">{quote.service} · {fmtPrice(quote.price)}</p>
+          {!!quote.gstAmount && (
+            <p className="text-xs text-gray-400">
+              Includes GST{quote.gstPercentage ? ` ${quote.gstPercentage}%` : ''} {fmtPrice(quote.gstAmount)}
+            </p>
+          )}
+          <p className="text-gray-500">{quote.service} · {fmtPrice(total)}</p>
         </div>
         <form onSubmit={handleSend} className="flex flex-col gap-3">
           <div>

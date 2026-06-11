@@ -8,6 +8,8 @@ export interface IQuote extends Document {
   phone?: string;
   service: string;
   price: number;
+  gstPercentage?: number;
+  gstAmount?: number;
   description?: string;
   validUntil: Date;
   status: 'Draft' | 'Sent' | 'Accepted' | 'Rejected';
@@ -24,6 +26,8 @@ const quoteSchema = new mongoose.Schema<IQuote>(
     phone:       String,
     service:     { type: String, required: true },
     price:       { type: Number, required: true },
+    gstPercentage: { type: Number, min: 0 },
+    gstAmount:   { type: Number, min: 0 },
     description: String,
     validUntil:  { type: Date, required: true },
     status:      { type: String, enum: ['Draft', 'Sent', 'Accepted', 'Rejected'], default: 'Draft' },

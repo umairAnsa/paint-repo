@@ -233,7 +233,7 @@ export default function ProjectsPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
-              href="/estimate"
+              href="/contact-us"
               className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#1e3a8a] px-8 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
             >
               Get Free Quote

@@ -17,7 +17,7 @@ const SLIDES = [
   },
   {
     id: 2,
-    image: '/projects/project-24.jpg',
+    image: '/projects/project-11.jpg',
     badge: 'Commercial Solutions',
     title: 'Professional Commercial Painting Services',
     highlight: 'Commercial',
@@ -53,11 +53,13 @@ function QuoteForm() {
   const [email, setEmail]     = useState('');
   const [service, setService] = useState('');
   const [status, setStatus]   = useState<FormStatus>('idle');
+  const [submittedPhone, setSubmittedPhone] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus('loading');
     try {
+      setSubmittedPhone(phone.trim());
       await submitLead({ name, phone, email, description: `Service: ${service || 'Not specified'}`, source: 'hero' });
       setStatus('success');
     } catch {
@@ -74,7 +76,10 @@ function QuoteForm() {
           </svg>
         </div>
         <p className="text-lg font-black text-white">Request Received!</p>
-        <p className="text-sm text-white/70">We&apos;ll call you back within 2 hours.</p>
+        <p className="text-sm text-white/70">
+          We&apos;ll call you back within 2 hours at{' '}
+          <span className="font-bold text-white">{submittedPhone}</span>.
+        </p>
       </div>
     );
   }
@@ -223,7 +228,7 @@ export default function HeroSlider() {
 
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
-                href="/estimate"
+                href="/contact-us"
                 className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f97316] px-7 text-sm font-bold text-white shadow-xl shadow-orange-500/30 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]"
               >
                 Get Free Quote

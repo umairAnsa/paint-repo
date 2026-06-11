@@ -130,7 +130,7 @@ export default async function BlogPostPage(
           <h2 className="text-3xl font-black text-white sm:text-4xl">Ready to Get Started?</h2>
           <p className="mx-auto mt-4 max-w-lg text-base text-white/60">Get a free, no-obligation quote from Melbourne&apos;s trusted painting team.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/estimate" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]">Get Free Quote</Link>
+            <Link href="/contact-us" className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f97316] px-8 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:-translate-y-0.5 hover:bg-[#ea6c07]">Get Free Quote</Link>
             <Link href="/contact-us" className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/25 px-8 text-sm font-bold text-white transition hover:border-white/50">Contact Us</Link>
           </div>
         </div>
