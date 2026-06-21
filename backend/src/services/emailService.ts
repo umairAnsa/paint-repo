@@ -111,7 +111,7 @@ export async function sendLeadEmailWithPhotos(data: LeadInput, pdfBuffer: Buffer
 
   try {
     const { data: result, error } = await resend.emails.send({
-      from:        process.env.RESEND_FROM || 'Norm Painting <onboarding@resend.dev>',
+      from:        process.env.RESEND_FROM || 'Norm Painting <info@normpainting.com>',
       to:          [toAddress],
       replyTo:     data.email,
       subject:     `New Lead + Photos: ${data.name} — Norm Painting`,
@@ -143,7 +143,7 @@ export async function sendLeadEmail(data: LeadInput): Promise<void> {
 
   try {
     const { data: result, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM || 'Norm Painting <onboarding@resend.dev>',
+      from: process.env.RESEND_FROM || 'Norm Painting <info@normpainting.com>',
       to: [toAddress],
       replyTo: data.email,
       subject: `New Lead: ${data.name} — Norm Painting`,

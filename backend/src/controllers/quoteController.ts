@@ -16,6 +16,15 @@ function validityDate(days: number): Date {
   return d;
 }
 
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    const message = (err as { message?: unknown }).message;
+    if (typeof message === 'string') return message;
+  }
+  return 'Unknown email error.';
+}
+
 // ── GET /api/quote ────────────────────────────────────────────────────────────
 
 export async function listQuotes(_req: Request, res: Response): Promise<void> {
@@ -126,7 +135,6 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
     const sendToEmail = (req.body.overrideEmail as string | undefined)?.trim() || quote.email;
 
     const pdf    = await generateQuotePDF(quote);
-    const errors: string[] = [];
     const quoteTotal = quote.price + (quote.gstAmount || 0);
     const price  = `$${quoteTotal.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
     const gstLabel = quote.gstPercentage ? `GST (${quote.gstPercentage}%)` : 'GST';
@@ -134,18 +142,24 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
       ? `<tr><td style="padding:12px 16px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;border-top:1px solid #e5e7eb;">${gstLabel}</td><td style="padding:12px 16px;font-size:14px;color:#111827;border-top:1px solid #e5e7eb;">$${quote.gstAmount.toLocaleString('en-AU', { minimumFractionDigits: 2 })}</td></tr>`
       : '';
 
-    // ── Email via Resend ──────────────────────────────────────────────────────
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const from   = process.env.RESEND_FROM || 'Norm Painting <onboarding@resend.dev>';
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+    if (!resendApiKey) {
+      logger.error('[Quote] Email failed. RESEND_API_KEY is not configured.');
+      res.status(500).json({ success: false, error: 'Email is not configured on the live server. Set RESEND_API_KEY.' });
+      return;
+    }
 
-        const { error } = await resend.emails.send({
-          from,
-          to:          [sendToEmail],
-          replyTo:     process.env.EMAIL_TO || 'info@normpainting.com',
-          subject:     `Your Quote from Norm Painting — ${quote.quoteNumber}`,
-          html: `
+    // ── Email via Resend ──────────────────────────────────────────────────────
+    try {
+      const resend = new Resend(resendApiKey);
+      const from   = process.env.RESEND_FROM || 'Norm Painting <info@normpainting.com>';
+
+      const { error } = await resend.emails.send({
+        from,
+        to:          [sendToEmail],
+        replyTo:     process.env.EMAIL_TO || 'info@normpainting.com',
+        subject:     `Your Quote from Norm Painting — ${quote.quoteNumber}`,
+        html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
               <div style="background:#0c1f3d;padding:28px 32px;border-bottom:4px solid #f97316;">
                 <img src="https://normpainting.com/logo.png" alt="Norm Painting" height="48" style="display:block;margin-bottom:12px;" />
@@ -182,22 +196,23 @@ export async function sendQuote(req: Request, res: Response): Promise<void> {
               </div>
             </div>
           `,
-          attachments: [{ filename: `${quote.quoteNumber}.pdf`, content: pdf.toString('base64') }],
-        });
+        attachments: [{ filename: `${quote.quoteNumber}.pdf`, content: pdf.toString('base64') }],
+      });
 
-        if (error) throw new Error(error.message);
-        logger.info('[Quote] Email sent via Resend.', { to: sendToEmail });
-      } catch (err) {
-        logger.error('[Quote] Email failed.', err);
-        errors.push('Email failed.');
-      }
+      if (error) throw new Error(error.message);
+      logger.info('[Quote] Email sent via Resend.', { to: sendToEmail });
+    } catch (err) {
+      const message = getErrorMessage(err);
+      logger.error('[Quote] Email failed.', { message, to: sendToEmail });
+      res.status(502).json({ success: false, error: `Email failed: ${message}` });
+      return;
     }
 
 
     quote.status = 'Sent';
     await quote.save();
 
-    res.json({ success: true, errors });
+    res.json({ success: true });
   } catch (err) {
     logger.error('[Quote] Send failed.', err);
     res.status(500).json({ error: 'Server error.' });

@@ -59,10 +59,15 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
 
   async function handleSendInvoice(inv: Invoice) {
     setInvBusy(b => ({ ...b, [inv._id]: true }));
-    const res = await api.sendInvoice(adminKey, inv._id);
-    setInvBusy(b => ({ ...b, [inv._id]: false }));
-    showToast(res.success ? 'Invoice sent!' : 'Send failed.');
-    if (res.success) loadData();
+    try {
+      const res = await api.sendInvoice(adminKey, inv._id);
+      showToast(res.success ? 'Invoice sent!' : (res.error || 'Send failed.'));
+      if (res.success) loadData();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Send failed.');
+    } finally {
+      setInvBusy(b => ({ ...b, [inv._id]: false }));
+    }
   }
 
   async function handleDeleteInvoice(inv: Invoice) {

@@ -19,6 +19,15 @@ function dueDate(days = 14): Date {
   return d;
 }
 
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    const message = (err as { message?: unknown }).message;
+    if (typeof message === 'string') return message;
+  }
+  return 'Unknown email error.';
+}
+
 // ── GET /api/invoice ──────────────────────────────────────────────────────────
 
 export async function listInvoices(_req: Request, res: Response): Promise<void> {
@@ -98,21 +107,26 @@ export async function sendInvoice(req: Request, res: Response): Promise<void> {
     if (!invoice) { res.status(404).json({ error: 'Invoice not found.' }); return; }
 
     const pdf = await generateInvoicePDF(invoice);
-    const errors: string[] = [];
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+
+    if (!resendApiKey) {
+      logger.error('[Invoice] Email failed. RESEND_API_KEY is not configured.');
+      res.status(500).json({ success: false, error: 'Email is not configured on the live server. Set RESEND_API_KEY.' });
+      return;
+    }
 
     // Email via Resend
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const from   = process.env.RESEND_FROM || 'Norm Painting <onboarding@resend.dev>';
-        const price  = `$${invoice.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
+    try {
+      const resend = new Resend(resendApiKey);
+      const from   = process.env.RESEND_FROM || 'Norm Painting <info@normpainting.com>';
+      const price  = `$${invoice.price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
 
-        const { error } = await resend.emails.send({
-          from,
-          to:      [invoice.email],
-          replyTo: process.env.EMAIL_TO || 'info@normpainting.com',
-          subject: `Invoice ${invoice.invoiceNumber} — Norm Painting`,
-          html: `
+      const { error } = await resend.emails.send({
+        from,
+        to:      [invoice.email],
+        replyTo: process.env.EMAIL_TO || 'info@normpainting.com',
+        subject: `Invoice ${invoice.invoiceNumber} — Norm Painting`,
+        html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
               <div style="background:#0c1f3d;padding:28px 32px;border-bottom:4px solid #f97316;">
                 <img src="https://normpainting.com/logo.png" alt="Norm Painting" height="48" style="display:block;margin-bottom:12px;" />
@@ -147,22 +161,23 @@ export async function sendInvoice(req: Request, res: Response): Promise<void> {
               </div>
             </div>
           `,
-          attachments: [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdf.toString('base64') }],
-        });
+        attachments: [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdf.toString('base64') }],
+      });
 
-        if (error) throw new Error(error.message);
-        logger.info('[Invoice] Email sent via Resend.', { to: invoice.email });
-      } catch (err) {
-        logger.error('[Invoice] Email failed.', err);
-        errors.push('Email failed.');
-      }
+      if (error) throw new Error(error.message);
+      logger.info('[Invoice] Email sent via Resend.', { to: invoice.email });
+    } catch (err) {
+      const message = getErrorMessage(err);
+      logger.error('[Invoice] Email failed.', { message, to: invoice.email });
+      res.status(502).json({ success: false, error: `Email failed: ${message}` });
+      return;
     }
 
     // Update status to Sent
     invoice.status = 'Sent';
     await invoice.save();
 
-    res.json({ success: true, errors });
+    res.json({ success: true });
   } catch (err) {
     logger.error('[Invoice] Send failed.', err);
     res.status(500).json({ error: 'Server error.' });
