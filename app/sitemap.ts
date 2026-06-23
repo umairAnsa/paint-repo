@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { fetchPosts } from './lib/blog';
 
 const baseUrl = 'https://normpainting.com';
 
@@ -48,9 +49,17 @@ const routes = [
   '/wallpaper-removal',
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return routes.map((route) => ({
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticUrls: MetadataRoute.Sitemap = routes.map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
   }));
+
+  const posts = await fetchPosts();
+  const blogUrls: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(),
+  }));
+
+  return [...staticUrls, ...blogUrls];
 }
