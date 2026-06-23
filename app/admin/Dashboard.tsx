@@ -81,7 +81,7 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
   // Blog-only view
   if (role === 'blog') {
     return (
-      <div className="min-h-screen bg-[#f8fafc]">
+      <div className="min-h-screen bg-[#f8fafc] pt-20">
         <header className="border-b border-gray-200 bg-white px-6 py-4">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <div className="flex items-center gap-3">
@@ -122,7 +122,7 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-[#f8fafc] pt-20">
       {toast && (
         <div className="fixed right-5 top-5 z-50 rounded-xl bg-[#0c1f3d] px-5 py-3 text-sm font-semibold text-white shadow-xl">
           {toast}
@@ -177,7 +177,15 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
               <p className="text-xs text-gray-400">Admin Dashboard</p>
             </div>
           </div>
-          <button onClick={onLogout} className="text-xs font-semibold text-gray-400 hover:text-gray-600">Logout</button>
+          <button
+              onClick={onLogout}
+              className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-bold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Logout
+            </button>
         </div>
       </header>
 
