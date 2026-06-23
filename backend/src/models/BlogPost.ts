@@ -6,7 +6,7 @@ export interface IBlogPost extends Document {
   excerpt: string;
   date: string;
   image: string;
-  content: object[];
+  content: object[] | string;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;

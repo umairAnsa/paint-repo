@@ -3,52 +3,23 @@
 import { useState, useRef } from 'react';
 import * as api from '../../lib/adminApi';
 import type { AdminBlogPost } from '../types';
+import RichEditor from '../RichEditor';
 
-type BlockType = 'h2' | 'p' | 'ul' | 'ol' | 'faq';
-
-interface Block {
-  id: number;
-  type: BlockType;
-  text: string;
-  items: string;
-  question: string;
-  answer: string;
+function contentToHtml(content: unknown): string {
+  if (!content) return '';
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  // Convert old block format to HTML for backward compatibility
+  return (content as Record<string, unknown>[]).map((b) => {
+    if (b.type === 'h2') return `<h2>${b.text}</h2>`;
+    if (b.type === 'h3') return `<h3>${b.text}</h3>`;
+    if (b.type === 'p')  return `<p>${b.text}</p>`;
+    if (b.type === 'ul') return `<ul>${(b.items as string[]).map(i => `<li>${i}</li>`).join('')}</ul>`;
+    if (b.type === 'ol') return `<ol>${(b.items as string[]).map(i => `<li>${i}</li>`).join('')}</ol>`;
+    if (b.type === 'faq') return `<h3>${b.question}</h3><p>${b.answer}</p>`;
+    return '';
+  }).join('');
 }
-
-let _id = 0;
-function newBlock(type: BlockType = 'p'): Block {
-  return { id: ++_id, type, text: '', items: '', question: '', answer: '' };
-}
-
-function blocksToContent(blocks: Block[]): object[] {
-  return blocks.map((b) => {
-    if (b.type === 'h2')  return { type: 'h2', text: b.text };
-    if (b.type === 'p')   return { type: 'p',  text: b.text };
-    if (b.type === 'ul')  return { type: 'ul', items: b.items.split('\n').map(s => s.trim()).filter(Boolean) };
-    if (b.type === 'ol')  return { type: 'ol', items: b.items.split('\n').map(s => s.trim()).filter(Boolean) };
-    if (b.type === 'faq') return { type: 'faq', question: b.question, answer: b.answer };
-    return {};
-  });
-}
-
-function contentToBlocks(content: object[]): Block[] {
-  return (content ?? []).map((c: object) => {
-    const b = c as Record<string, unknown>;
-    const base = newBlock((b.type as BlockType) ?? 'p');
-    if (b.type === 'h2' || b.type === 'p') base.text = (b.text as string) ?? '';
-    if (b.type === 'ul' || b.type === 'ol') base.items = ((b.items as string[]) ?? []).join('\n');
-    if (b.type === 'faq') { base.question = (b.question as string) ?? ''; base.answer = (b.answer as string) ?? ''; }
-    return base;
-  });
-}
-
-const BLOCK_LABELS: Record<BlockType, string> = {
-  h2: 'Heading',
-  p:  'Paragraph',
-  ul: 'Bullet List',
-  ol: 'Numbered List',
-  faq: 'FAQ',
-};
 
 export default function BlogModal({
   post,
@@ -68,9 +39,7 @@ export default function BlogModal({
   const [date,      setDate]      = useState(post?.date ?? '');
   const [image,     setImage]     = useState(post?.image ?? '');
   const [published, setPublished] = useState(post?.published ?? true);
-  const [blocks,    setBlocks]    = useState<Block[]>(() =>
-    post?.content ? contentToBlocks(post.content) : [newBlock('p')]
-  );
+  const [html,      setHtml]      = useState(() => contentToHtml(post?.content));
   const [busy,      setBusy]      = useState(false);
   const [imgBusy,   setImgBusy]   = useState(false);
   const [error,     setError]     = useState('');
@@ -91,30 +60,6 @@ export default function BlogModal({
     reader.readAsDataURL(file);
   }
 
-  function addBlock(type: BlockType) {
-    setBlocks(bs => [...bs, newBlock(type)]);
-  }
-
-  function updateBlock(id: number, patch: Partial<Block>) {
-    setBlocks(bs => bs.map(b => b.id === id ? { ...b, ...patch } : b));
-  }
-
-  function removeBlock(id: number) {
-    setBlocks(bs => bs.filter(b => b.id !== id));
-  }
-
-  function moveBlock(id: number, dir: -1 | 1) {
-    setBlocks(bs => {
-      const idx = bs.findIndex(b => b.id === id);
-      if (idx < 0) return bs;
-      const next = idx + dir;
-      if (next < 0 || next >= bs.length) return bs;
-      const arr = [...bs];
-      [arr[idx], arr[next]] = [arr[next], arr[idx]];
-      return arr;
-    });
-  }
-
   async function handleSave() {
     if (!title.trim() || !excerpt.trim() || !date.trim()) {
       setError('Title, excerpt, and date are required.');
@@ -122,7 +67,7 @@ export default function BlogModal({
     }
     setBusy(true);
     setError('');
-    const body = { title, excerpt, date, image, content: blocksToContent(blocks), published };
+    const body = { title, excerpt, date, image, content: html, published };
     const res = isEdit
       ? await api.updateBlogPost(blogKey, post!._id, body)
       : await api.createBlogPost(blogKey, body);
@@ -198,85 +143,10 @@ export default function BlogModal({
             <span className="text-sm font-semibold text-gray-700">Published</span>
           </label>
 
-          {/* Content Blocks */}
+          {/* Rich Text Editor */}
           <div>
-            <label className="mb-3 block text-xs font-bold uppercase tracking-wider text-gray-500">Content</label>
-            <div className="space-y-3">
-              {blocks.map((block, idx) => (
-                <div key={block.id} className="rounded-xl border border-gray-200 bg-[#f8fafc] p-4">
-                  {/* Block header */}
-                  <div className="mb-3 flex items-center gap-2">
-                    <select value={block.type}
-                      onChange={e => updateBlock(block.id, { type: e.target.value as BlockType })}
-                      className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 focus:outline-none">
-                      {(Object.keys(BLOCK_LABELS) as BlockType[]).map(t => (
-                        <option key={t} value={t}>{BLOCK_LABELS[t]}</option>
-                      ))}
-                    </select>
-                    <div className="ml-auto flex gap-1">
-                      <button onClick={() => moveBlock(block.id, -1)} disabled={idx === 0}
-                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200 disabled:opacity-30">
-                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-                        </svg>
-                      </button>
-                      <button onClick={() => moveBlock(block.id, 1)} disabled={idx === blocks.length - 1}
-                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200 disabled:opacity-30">
-                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      <button onClick={() => removeBlock(block.id)}
-                        className="rounded-lg p-1.5 text-red-400 hover:bg-red-50">
-                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Block content */}
-                  {(block.type === 'h2') && (
-                    <input value={block.text} onChange={e => updateBlock(block.id, { text: e.target.value })}
-                      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-bold focus:outline-none"
-                      placeholder="Heading text" />
-                  )}
-                  {block.type === 'p' && (
-                    <textarea value={block.text} onChange={e => updateBlock(block.id, { text: e.target.value })} rows={3}
-                      className="w-full resize-y rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"
-                      placeholder="Paragraph text" />
-                  )}
-                  {(block.type === 'ul' || block.type === 'ol') && (
-                    <div>
-                      <p className="mb-1 text-xs text-gray-400">One item per line</p>
-                      <textarea value={block.items} onChange={e => updateBlock(block.id, { items: e.target.value })} rows={4}
-                        className="w-full resize-y rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"
-                        placeholder={"Item 1\nItem 2\nItem 3"} />
-                    </div>
-                  )}
-                  {block.type === 'faq' && (
-                    <div className="space-y-2">
-                      <input value={block.question} onChange={e => updateBlock(block.id, { question: e.target.value })}
-                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold focus:outline-none"
-                        placeholder="Question?" />
-                      <textarea value={block.answer} onChange={e => updateBlock(block.id, { answer: e.target.value })} rows={2}
-                        className="w-full resize-y rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none"
-                        placeholder="Answer..." />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Add block buttons */}
-            <div className="mt-3 flex flex-wrap gap-2">
-              {(Object.keys(BLOCK_LABELS) as BlockType[]).map(t => (
-                <button key={t} onClick={() => addBlock(t)}
-                  className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-600 hover:border-[#1e3a8a] hover:text-[#1e3a8a]">
-                  + {BLOCK_LABELS[t]}
-                </button>
-              ))}
-            </div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500">Content</label>
+            <RichEditor value={html} onChange={setHtml} />
           </div>
         </div>
 

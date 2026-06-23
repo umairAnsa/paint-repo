@@ -14,7 +14,7 @@ export interface BlogPost {
   date: string;
   excerpt: string;
   image: string;
-  content: ContentBlock[];
+  content: ContentBlock[] | string;
   published?: boolean;
 }
 

@@ -72,11 +72,14 @@ export default async function BlogPostPage(
   const { slug } = await params;
   const post = await fetchPost(slug);
   if (!post) notFound();
+  const p = post!;
 
-  const bodyBlocks = post.content.filter((b) => b.type !== 'faq');
-  const faqBlocks  = post.content.filter((b) => b.type === 'faq');
+  const isHtml = typeof p.content === 'string';
+  const blocksContent: ContentBlock[] = isHtml ? [] : (p.content as ContentBlock[]);
+  const bodyBlocks = blocksContent.filter((b: ContentBlock) => b.type !== 'faq');
+  const faqBlocks  = blocksContent.filter((b: ContentBlock) => b.type === 'faq');
   const allPosts   = await fetchPosts();
-  const related    = allPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
+  const related    = allPosts.filter((r) => r.slug !== p.slug).slice(0, 3);
 
   return (
     <main>
@@ -93,33 +96,41 @@ export default async function BlogPostPage(
           </Link>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white">
             <span className="h-1.5 w-1.5 rounded-full bg-[#f97316]" />
-            {post.date}
+            {p.date}
           </span>
-          <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">{post.title}</h1>
-          <p className="mt-5 text-base leading-7 text-white/60">{post.excerpt}</p>
+          <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">{p.title}</h1>
+          <p className="mt-5 text-base leading-7 text-white/60">{p.excerpt}</p>
         </div>
       </section>
 
       {/* Featured Image */}
-      {post.image && (
+      {p.image && (
         <div className="mx-auto -mt-8 max-w-4xl px-5 sm:px-8">
           <div className="relative h-64 overflow-hidden rounded-2xl shadow-2xl shadow-black/20 sm:h-96">
-            <Image src={post.image} alt={post.title} fill className="object-cover" priority sizes="(max-width: 896px) 100vw, 896px" />
+            <Image src={p.image} alt={p.title} fill className="object-cover" priority sizes="(max-width: 896px) 100vw, 896px" />
           </div>
         </div>
       )}
 
       {/* Article Body */}
       <article className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-        {bodyBlocks.map((block, i) => renderBlock(block, i))}
-
-        {faqBlocks.length > 0 && (
-          <div className="mt-14">
-            <h2 className="text-2xl font-black text-[#111827] sm:text-3xl">Frequently Asked Questions</h2>
-            <div className="mt-4 flex flex-col gap-3">
-              {faqBlocks.map((block, i) => renderBlock(block, i))}
-            </div>
-          </div>
+        {isHtml ? (
+          <div
+            className="prose-blog"
+            dangerouslySetInnerHTML={{ __html: p.content as string }}
+          />
+        ) : (
+          <>
+            {bodyBlocks.map((block, i) => renderBlock(block, i))}
+            {faqBlocks.length > 0 && (
+              <div className="mt-14">
+                <h2 className="text-2xl font-black text-[#111827] sm:text-3xl">Frequently Asked Questions</h2>
+                <div className="mt-4 flex flex-col gap-3">
+                  {faqBlocks.map((block, i) => renderBlock(block, i))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </article>
 
@@ -142,18 +153,18 @@ export default async function BlogPostPage(
           <div className="mx-auto max-w-7xl">
             <h2 className="text-2xl font-black text-[#111827] sm:text-3xl">More Articles</h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-3">
-              {related.map((p) => (
-                <Link key={p.slug} href={`/blog/${p.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              {related.map((rp) => (
+                <Link key={rp.slug} href={`/blog/${rp.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                   <div className="relative h-40 overflow-hidden bg-gray-100">
-                    {p.image ? (
-                      <Image src={p.image} alt={p.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="33vw" />
+                    {rp.image ? (
+                      <Image src={rp.image} alt={rp.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="33vw" />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-[#0c1f3d]/10" />
                     )}
                   </div>
                   <div className="flex flex-1 flex-col p-5">
-                    <span className="text-xs font-bold uppercase tracking-widest text-[#f97316]">{p.date}</span>
-                    <h3 className="mt-2 text-sm font-black leading-snug text-[#111827] group-hover:text-[#1e3a8a]">{p.title}</h3>
+                    <span className="text-xs font-bold uppercase tracking-widest text-[#f97316]">{rp.date}</span>
+                    <h3 className="mt-2 text-sm font-black leading-snug text-[#111827] group-hover:text-[#1e3a8a]">{rp.title}</h3>
                     <div className="mt-3 flex items-center gap-1 text-xs font-bold text-[#1e3a8a]">
                       Read
                       <svg className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
