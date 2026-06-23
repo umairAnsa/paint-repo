@@ -95,7 +95,15 @@ export default function Dashboard({ role, onLogout }: { role: 'admin' | 'blog'; 
                 <p className="text-xs text-gray-400">Blog Dashboard</p>
               </div>
             </div>
-            <button onClick={onLogout} className="text-xs font-semibold text-gray-400 hover:text-gray-600">Logout</button>
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-bold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Logout
+            </button>
           </div>
         </header>
         <div className="mx-auto max-w-7xl px-6 py-8">
