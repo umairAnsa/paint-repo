@@ -36,9 +36,11 @@ function ToolbarBtn({
 export default function RichEditor({
   value,
   onChange,
+  fullHeight = false,
 }: {
   value: string;
   onChange: (html: string) => void;
+  fullHeight?: boolean;
 }) {
   const editor = useEditor({
     extensions: [
@@ -54,8 +56,9 @@ export default function RichEditor({
     },
     editorProps: {
       attributes: {
-        class:
-          'min-h-[220px] px-4 py-3 text-sm text-gray-800 leading-7 focus:outline-none',
+        class: fullHeight
+          ? 'h-full min-h-[500px] px-4 py-3 text-sm text-gray-800 leading-7 focus:outline-none'
+          : 'min-h-[220px] px-4 py-3 text-sm text-gray-800 leading-7 focus:outline-none',
       },
     },
   });
