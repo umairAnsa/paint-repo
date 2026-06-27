@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { fetchPosts } from '../lib/blog';
 
@@ -55,14 +54,12 @@ export default async function BlogPage() {
                   href={`/blog/${post.slug}`}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
                 >
-                  <div className="relative h-52 overflow-hidden bg-gray-100">
+                  <div className="h-52 overflow-hidden bg-gray-100">
                     {post.image ? (
-                      <Image
+                      <img
                         src={post.image}
                         alt={post.title}
-                        fill
-                        className="object-cover transition duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-[#0c1f3d]/10">

@@ -4,7 +4,8 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import { useEffect } from 'react';
+import Image from '@tiptap/extension-image';
+import { useEffect, useRef } from 'react';
 
 function ToolbarBtn({
   onClick,
@@ -37,18 +38,23 @@ export default function RichEditor({
   value,
   onChange,
   fullHeight = false,
+  onUploadImage,
 }: {
   value: string;
   onChange: (html: string) => void;
   fullHeight?: boolean;
+  onUploadImage?: (file: File) => Promise<string>;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: { levels: [2, 3] },
+        heading: { levels: [1, 2, 3, 4, 5, 6] },
       }),
       Underline,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Image.configure({ allowBase64: true }),
     ],
     content: value || '',
     onUpdate({ editor }) {
@@ -71,6 +77,16 @@ export default function RichEditor({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
+  async function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !editor || !onUploadImage) return;
+    e.target.value = '';
+    const url = await onUploadImage(file);
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  }
+
   if (!editor) return null;
 
   return (
@@ -78,20 +94,18 @@ export default function RichEditor({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 border-b border-gray-200 bg-[#f8fafc] px-2 py-1.5">
         {/* Headings */}
-        <ToolbarBtn
-          title="Heading 2"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          active={editor.isActive('heading', { level: 2 })}
-        >
-          H2
-        </ToolbarBtn>
-        <ToolbarBtn
-          title="Heading 3"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          active={editor.isActive('heading', { level: 3 })}
-        >
-          H3
-        </ToolbarBtn>
+        {([1, 2, 3, 4, 5, 6] as const).map((level) => (
+          <ToolbarBtn
+            key={level}
+            title={`Heading ${level}`}
+            onClick={() => editor.chain().focus().toggleHeading({ level }).run()}
+            active={editor.isActive('heading', { level })}
+          >
+            <span className={level <= 2 ? 'font-bold' : level <= 4 ? 'font-semibold' : 'font-normal'}>
+              H{level}
+            </span>
+          </ToolbarBtn>
+        ))}
 
         <span className="mx-1 h-5 w-px bg-gray-300" />
 
@@ -163,7 +177,7 @@ export default function RichEditor({
 
         <span className="mx-1 h-5 w-px bg-gray-300" />
 
-        {/* Block quote & code */}
+        {/* Block quote */}
         <ToolbarBtn
           title="Blockquote"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -171,6 +185,26 @@ export default function RichEditor({
         >
           &ldquo;&rdquo;
         </ToolbarBtn>
+
+        {/* Image upload */}
+        {onUploadImage && (
+          <>
+            <span className="mx-1 h-5 w-px bg-gray-300" />
+            <ToolbarBtn
+              title="Insert Image"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              🖼
+            </ToolbarBtn>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageFile}
+            />
+          </>
+        )}
 
         <span className="mx-1 h-5 w-px bg-gray-300" />
 

@@ -44,19 +44,29 @@ export default function BlogModal({
   const [error,     setError]     = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
+  function readFileAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadImage(file: File): Promise<string> {
+    const base64 = await readFileAsBase64(file);
+    const res = await api.uploadBlogImage(blogKey, base64, file.name);
+    return res.url ?? '';
+  }
+
   async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setImgBusy(true);
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result as string;
-      const res = await api.uploadBlogImage(blogKey, base64, file.name);
-      if (res.url) setImage(res.url);
-      else setError('Image upload failed.');
-      setImgBusy(false);
-    };
-    reader.readAsDataURL(file);
+    const url = await uploadImage(file);
+    if (url) setImage(url);
+    else setError('Image upload failed.');
+    setImgBusy(false);
   }
 
   async function handleSave() {
@@ -189,7 +199,7 @@ export default function BlogModal({
         <div className="flex flex-1 flex-col overflow-y-auto p-6">
           <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Content</label>
           <div className="flex-1">
-            <RichEditor value={html} onChange={setHtml} fullHeight />
+            <RichEditor value={html} onChange={setHtml} fullHeight onUploadImage={uploadImage} />
           </div>
         </div>
 

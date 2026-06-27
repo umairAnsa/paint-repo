@@ -19,7 +19,7 @@ const BlogPostSchema = new Schema<IBlogPost>(
     excerpt:   { type: String, required: true },
     date:      { type: String, required: true },
     image:     { type: String, default: '' },
-    content:   { type: [Schema.Types.Mixed], default: [] },
+    content:   { type: Schema.Types.Mixed, default: '' },
     published: { type: Boolean, default: true },
   },
   { timestamps: true },

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { fetchPost, fetchPosts, type ContentBlock } from '../../lib/blog';
@@ -106,8 +105,8 @@ export default async function BlogPostPage(
       {/* Featured Image */}
       {p.image && (
         <div className="mx-auto -mt-8 max-w-4xl px-5 sm:px-8">
-          <div className="relative h-64 overflow-hidden rounded-2xl shadow-2xl shadow-black/20 sm:h-96">
-            <Image src={p.image} alt={p.title} fill className="object-cover" priority sizes="(max-width: 896px) 100vw, 896px" />
+          <div className="h-64 overflow-hidden rounded-2xl shadow-2xl shadow-black/20 sm:h-96">
+            <img src={p.image} alt={p.title} className="h-full w-full object-cover" />
           </div>
         </div>
       )}
@@ -155,9 +154,9 @@ export default async function BlogPostPage(
             <div className="mt-8 grid gap-6 sm:grid-cols-3">
               {related.map((rp) => (
                 <Link key={rp.slug} href={`/blog/${rp.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                  <div className="relative h-40 overflow-hidden bg-gray-100">
+                  <div className="h-40 overflow-hidden bg-gray-100">
                     {rp.image ? (
-                      <Image src={rp.image} alt={rp.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="33vw" />
+                      <img src={rp.image} alt={rp.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-[#0c1f3d]/10" />
                     )}

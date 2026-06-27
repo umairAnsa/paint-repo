@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
 import BlogPost from '../models/BlogPost';
 import { logger } from '../lib/logger';
 
@@ -65,23 +63,13 @@ export async function getPost(req: Request, res: Response): Promise<void> {
 // ── POST /api/blog/upload-image (admin) ─────────────────────────────────────
 export async function uploadImage(req: Request, res: Response): Promise<void> {
   try {
-    const { image, filename } = req.body as { image: string; filename: string };
+    const { image } = req.body as { image: string; filename: string };
     if (!image || !image.includes(',')) {
       res.status(400).json({ error: 'No image data.' });
       return;
     }
-
-    const b64  = image.split(',')[1];
-    const ext  = filename?.split('.').pop()?.toLowerCase() || 'jpg';
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const dir  = path.join(__dirname, '..', '..', 'public', 'blog');
-
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-    fs.writeFileSync(path.join(dir, name), Buffer.from(b64, 'base64'));
-
-    const base = process.env.BACKEND_URL || 'https://norm-painting-backend.onrender.com';
-    res.json({ url: `${base}/static/blog/${name}` });
+    // Return the data URI directly — no filesystem dependency, works in any environment
+    res.json({ url: image });
   } catch (err) {
     logger.error('[Blog] image upload failed', err);
     res.status(500).json({ error: 'Upload failed.' });
